@@ -112,20 +112,7 @@
 </div>
 
 <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
-        const msgWin = document.getElementById('msgWindow');
-        
-        msgWin.className = "message success-msg";
-        msgWin.textContent = "आयपी आणि पासवर्ड पडताळणी होत आहे...";
-        
-        // सुरक्षिततेचे मुख्य लॉजिक आपण पुढील टप्प्यात जोडू
-        console.log("Login attempt:", user);
-    });
-<script>
-    // तुमची नवीन Google Apps Script Web App URL इथे टाका
+    // सूचना: खालील लिंकच्या जागी तुमची नवीन 'Web App URL' टाकायला विसरू नका.
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeF4tpE-B8WwpYEz35ypqTgEUCLgRgFB324UOlyMZG06wPbVq3JFisCwr4bzEZV9qp/exec";
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -169,7 +156,7 @@
                 }, 1000);
             } else {
                 msgWin.className = "message error-msg";
-                msgWin.textContent = data.message; // "चुकीचा युझर आयडी किंवा पासवर्ड."
+                msgWin.textContent = data.message; 
             }
         })
         .catch(error => {

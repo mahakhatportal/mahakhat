@@ -124,6 +124,62 @@
         // सुरक्षिततेचे मुख्य लॉजिक आपण पुढील टप्प्यात जोडू
         console.log("Login attempt:", user);
     });
+<script>
+    // तुमची नवीन Google Apps Script Web App URL इथे टाका
+    const SCRIPT_URL = "येथे_तुमची_गुगल_ॲप्स_स्क्रिप्टची_वेब_अॅप_लिंक_पेस्ट_करा";
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const msgWin = document.getElementById('msgWindow');
+        const submitBtn = document.querySelector('button[type="submit"]');
+        
+        // लोडिंग मेसेज
+        msgWin.className = "message success-msg";
+        msgWin.textContent = "प्रतीक्षा करा, माहिती तपासली जात आहे...";
+        submitBtn.disabled = true;
+        submitBtn.textContent = "तपासत आहे...";
+        
+        // गुगल स्क्रिप्टला डेटा पाठवणे
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'login',
+                username: user,
+                password: pass
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "लॉगिन करा";
+            
+            if (data.success) {
+                msgWin.className = "message success-msg";
+                msgWin.textContent = data.message;
+                
+                // अधिकाऱ्याची माहिती ब्राउझरमध्ये सेव्ह करणे (डॅशबोर्डसाठी)
+                sessionStorage.setItem('mahakhat_user', JSON.stringify(data.user));
+                
+                // लॉगिन यशस्वी झाल्यावर डॅशबोर्डवर पाठवणे
+                setTimeout(() => {
+                    window.location.href = "dashboard.html"; 
+                }, 1000);
+            } else {
+                msgWin.className = "message error-msg";
+                msgWin.textContent = data.message; // "चुकीचा युझर आयडी किंवा पासवर्ड."
+            }
+        })
+        .catch(error => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "लॉगिन करा";
+            msgWin.className = "message error-msg";
+            msgWin.textContent = "सर्व्हरशी संपर्क होऊ शकला नाही. पुन्हा प्रयत्न करा.";
+            console.error("Error:", error);
+        });
+    });
 </script>
 
 </body>

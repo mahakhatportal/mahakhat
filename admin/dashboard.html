@@ -1,1 +1,282 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MahaKhat - मुख्य डॅशबोर्ड</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Nirmala UI', Arial, sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .user-info {
+            text-align: right;
+        }
+        .user-info h3 { font-size: 16px; font-weight: 600; }
+        .user-info p { font-size: 13px; opacity: 0.9; }
+        .logout-btn {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+        .logout-btn:hover { background-color: #b71c1c; }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .welcome-msg {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border-left: 5px solid #2e7d32;
+        }
 
+        /* डेटा एंट्री युझरसाठी ग्रिड लेआउट */
+        .menu-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .menu-card {
+            background-color: white;
+            flex: 1;
+            min-width: 280px;
+            max-width: 380px;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            text-align: center;
+            border-bottom: 4px solid #388e3c;
+            transition: transform 0.3s;
+        }
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        .menu-card h2 {
+            font-size: 20px;
+            color: #2e7d32;
+            margin-bottom: 12px;
+        }
+        .menu-card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+            height: 40px;
+        }
+        .menu-link {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #2e7d32;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .menu-link:hover { background-color: #1b5e20; }
+
+        /* वरिष्ठ अधिकाऱ्यांसाठी स्पेशल डॅशबोर्ड व्ह्यू */
+        #seniorView { display: none; }
+        .stats-summary {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-top: 4px solid #1976d2;
+            text-align: center;
+        }
+        .stat-box h3 { font-size: 14px; color: #555; margin-bottom: 5px; }
+        .stat-box p { font-size: 22px; font-weight: bold; color: #1976d2; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-top: 15px;
+        }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #e8f5e9; color: #2e7d32; font-weight: 600; }
+        tr:hover { background-color: #f9fdf9; }
+        
+        .call-btn {
+            background-color: #2e7d32;
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .call-btn:hover { background-color: #1b5e20; }
+        
+        #dataEntryView { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h2>महाखत (MahaKhat) पोर्टल</h2>
+    <div style="display: flex; align-items: center;">
+        <div class="user-info">
+            <h3 id="display_name">अधिकारी नाव</h3>
+            <p id="display_role">पदनाम | जिल्हा</p>
+        </div>
+        <button class="logout-btn" onclick="logout()">लॉगआउट</button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="welcome-msg">
+        <h1>नमस्कार, <span id="welcome_user">अधिकारी</span></h1>
+        <p>महाखत व्यवस्थापन पॅनेलमध्ये आपले स्वागत आहे. खालील सुलभ साधनांचा वापर करून डेटा व्यवस्थापित करा.</p>
+    </div>
+
+    <div id="dataEntryView">
+        <div class="menu-grid">
+            <div class="menu-card">
+                <h2>१. किरकोळ साठा एंट्री</h2>
+                <p>आजचा किरकोळ विक्रेत्यांचा (Retailer) रासायनिक खत साठा अपडेट करा.</p>
+                <a href="forms/retailer-stock.html" class="menu-link">फॉर्म उघडा</a>
+            </div>
+            <div class="menu-card">
+                <h2>२. घाऊक साठा एंट्री</h2>
+                <p>आजचा घाऊक विक्रेत्यांचा (Wholesaler) रासायनिक खत साठा अपडेट करा.</p>
+                <a href="forms/wholesaler-stock.html" class="menu-link">फॉर्म उघडा</a>
+            </div>
+            <div class="menu-card">
+                <h2>३. बफर स्टॉक माहिती</h2>
+                <p>जिल्ह्यातील बफर (संरक्षित) खत साठा आणि रिलिज तारखेची नोंद करा.</p>
+                <a href="forms/buffer-stock.html" class="menu-link">फॉर्म उघडा</a>
+            </div>
+            <div class="menu-card">
+                <h2>४. बंद दुकाने व्यवस्थापन</h2>
+                <p>निलंबित किंवा तात्पुरत्या बंद असलेल्या कृषी सेवा केंद्रांचे व्यवस्थापन करा.</p>
+                <a href="forms/defunct-shops.html" class="menu-link">फॉर्म उघडा</a>
+            </div>
+            <div class="menu-card">
+                <h2>५. गहाळ तालुका माहिती</h2>
+                <p>पोर्टलवर एखादी तालुक्याची माहिती किंवा मॅपिंग गहाळ असल्यास नोंद करा.</p>
+                <a href="forms/missing-taluka.html" class="menu-link">फॉर्म उघडा</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="seniorView">
+        <div class="stats-summary">
+            <div class="stat-box" style="border-top-color: #2e7d32;">
+                <h3>एकूण अपडेटेड जिल्हे</h3>
+                <p id="stat_districts">१ / ३६</p>
+            </div>
+            <div class="stat-box" style="border-top-color: #ff9800;">
+                <h3>एकूण रिटेल साठा (राज्य)</h3>
+                <p id="stat_retail">५,००० मे.टन</p>
+            </div>
+            <div class="stat-box" style="border-top-color: #e91e63;">
+                <h3>एकूण बफर साठा (राज्य)</h3>
+                <p id="stat_buffer">५०० मे.टन</p>
+            </div>
+        </div>
+        
+        <h2>राज्यस्तरीय खत उपलब्धता गोषवारा</h2>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>जिल्हा</th>
+                        <th>अद्ययावत तारीख</th>
+                        <th>रिटेल साठा (मे.टन/बॅग्ज)</th>
+                        <th>होलसेल साठा (मे.टन/बॅग्ज)</th>
+                        <th>बफर साठा (मे.टन)</th>
+                        <th>सक्रिय विक्रेते</th>
+                        <th>संपर्क (FGL)</th>
+                    </tr>
+                </thead>
+                <tbody id="seniorTableBody">
+                    <tr>
+                        <td><b>वाशिम</b></td>
+                        <td>२३ जून २०२६</td>
+                        <td>५,००० मे.टन<br><small>(१,००,००० बॅग्ज)</small></td>
+                        <td>२,००० मे.टन<br><small>(४०,००० बॅग्ज)</small></td>
+                        <td>५०० मे.टन</td>
+                        <td>४५०</td>
+                        <td><a href="tel:+919999999999" class="call-btn">📞 ADO ला कॉल करा</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // सुरक्षा तपासणी: युझर लॉगिन आहे की नाही ते तपासणे
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionData = sessionStorage.getItem('mahakhat_user');
+        
+        if (!sessionData) {
+            // जर युझर लॉगिन नसेल तर थेट लॉगिन पेजवर परत पाठवणे
+            alert("कृपया सुरक्षा पडताळणीसाठी आधी लॉगिन करा.");
+            window.location.href = "login.html";
+            return;
+        }
+        
+        const user = JSON.parse(sessionData);
+        
+        // प्रोफाइलवर डेटा सेट करणे
+        document.getElementById('display_name').textContent = user.name;
+        document.getElementById('display_role').textContent = user.designation + " | " + (user.district || user.division || "महाराष्ट्र");
+        document.getElementById('welcome_user').textContent = user.name;
+        
+        // युझरच्या भूमिकेनुसार (Role) स्क्रीन बदलणे
+        if (user.role === "Senior_Viewer") {
+            document.getElementById('seniorView').style.display = "block";
+        } else {
+            // डेटा एंट्री ऑपरेटर किंवा जिल्हा स्तरीय अधिकारी
+            document.getElementById('dataEntryView').style.display = "block";
+        }
+    });
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = "login.html";
+    }
+</script>
+
+</body>
+</html>

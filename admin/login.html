@@ -1,1 +1,130 @@
-<h1>MahaKhat Admin</h1>
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MahaKhat - अधिकारी लॉगिन</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Nirmala UI', Arial, sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            border-top: 5px solid #2e7d32;
+        }
+        .logo-area {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-area h1 {
+            color: #2e7d32;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .logo-area p {
+            color: #666;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4caf50;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+        }
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .error-msg { color: #d32f2f; }
+        .success-msg { color: #2e7d32; }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="logo-area">
+        <h1>महाखत (MahaKhat)</h1>
+        <p>प्रशासकीय नियंत्रण व डेटा एंट्री पॅनेल</p>
+    </div>
+    
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="username">युझर आयडी (User ID)</label>
+            <input type="text" id="username" placeholder="उदा. adowashim" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">पासवर्ड (Password)</label>
+            <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit">लॉगिन करा</button>
+    </form>
+    
+    <div id="msgWindow" class="message"></div>
+</div>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const msgWin = document.getElementById('msgWindow');
+        
+        msgWin.className = "message success-msg";
+        msgWin.textContent = "आयपी आणि पासवर्ड पडताळणी होत आहे...";
+        
+        // सुरक्षिततेचे मुख्य लॉजिक आपण पुढील टप्प्यात जोडू
+        console.log("Login attempt:", user);
+    });
+</script>
+
+</body>
+</html>

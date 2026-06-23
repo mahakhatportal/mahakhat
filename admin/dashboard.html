@@ -131,7 +131,8 @@
         document.getElementById('display_role').textContent = user.designation + " | " + (user.district || user.division || "महाराष्ट्र");
         document.getElementById('welcome_user').textContent = user.name;
         
-        const access = user.access;
+        // जुन्या ओळ ऐवजी हा सुरक्षित कोड टाका:
+        const access = user.access || { publicPortal: "NO", dataEntry: "NO", stockReport: "NO", userManagement: "NO" };
 
         // 2. पब्लिक पोर्टल ॲक्सेस
         if (access.publicPortal === "YES" || access.publicPortal === "ViewOnly") {

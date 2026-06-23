@@ -5,148 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MahaKhat - मुख्य डॅशबोर्ड</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', 'Nirmala UI', Arial, sans-serif;
-        }
-        body {
-            background-color: #f4f7f6;
-            color: #333;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f4f7f6; color: #333; }
         header {
             background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .user-info {
-            text-align: right;
-        }
+        .user-info { text-align: right; }
         .user-info h3 { font-size: 16px; font-weight: 600; }
         .user-info p { font-size: 13px; opacity: 0.9; }
-        .logout-btn {
-            background-color: #d32f2f;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-left: 15px;
-        }
+        .logout-btn { background-color: #d32f2f; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-left: 15px; }
         .logout-btn:hover { background-color: #b71c1c; }
         
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .welcome-msg {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-            border-left: 5px solid #2e7d32;
-        }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .welcome-msg { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 5px solid #2e7d32; }
 
-        /* डेटा एंट्री युझरसाठी ग्रिड लेआउट */
-        .menu-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+        /* सेक्शन लपवण्यासाठी डीफॉल्ट क्लास */
+        .dashboard-section { display: none; margin-bottom: 40px; }
+        .section-header { font-size: 22px; color: #2e7d32; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; }
+
+        .menu-grid { display: flex; flex-wrap: wrap; gap: 20px; }
         .menu-card {
-            background-color: white;
-            flex: 1;
-            min-width: 280px;
-            max-width: 380px;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            text-align: center;
-            border-bottom: 4px solid #388e3c;
-            transition: transform 0.3s;
+            background-color: white; flex: 1; min-width: 250px; max-width: 350px; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; border-bottom: 4px solid #388e3c;
         }
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-        }
-        .menu-card h2 {
-            font-size: 20px;
-            color: #2e7d32;
-            margin-bottom: 12px;
-        }
-        .menu-card p {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 20px;
-            height: 40px;
-        }
-        .menu-link {
-            display: inline-block;
-            text-decoration: none;
-            background-color: #2e7d32;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 15px;
-        }
+        .menu-card h2 { font-size: 18px; color: #2e7d32; margin-bottom: 10px; }
+        .menu-card p { font-size: 14px; color: #666; margin-bottom: 20px; height: 40px; }
+        .menu-link { display: inline-block; text-decoration: none; background-color: #2e7d32; color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold; font-size: 14px; }
         .menu-link:hover { background-color: #1b5e20; }
-
-        /* वरिष्ठ अधिकाऱ्यांसाठी स्पेशल डॅशबोर्ड व्ह्यू */
-        #seniorView { display: none; }
-        .stats-summary {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-        .stat-box {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            flex: 1;
-            min-width: 200px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            border-top: 4px solid #1976d2;
-            text-align: center;
-        }
-        .stat-box h3 { font-size: 14px; color: #555; margin-bottom: 5px; }
-        .stat-box p { font-size: 22px; font-weight: bold; color: #1976d2; }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            margin-top: 15px;
-        }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #e8f5e9; color: #2e7d32; font-weight: 600; }
-        tr:hover { background-color: #f9fdf9; }
-        
-        .call-btn {
-            background-color: #2e7d32;
-            color: white;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: bold;
-            display: inline-block;
-        }
-        .call-btn:hover { background-color: #1b5e20; }
-        
-        #dataEntryView { display: none; }
+        .menu-link.view-only { background-color: #f57c00; }
+        .menu-link.view-only:hover { background-color: #ef6c00; }
     </style>
 </head>
 <body>
@@ -165,92 +52,73 @@
 <div class="container">
     <div class="welcome-msg">
         <h1>नमस्कार, <span id="welcome_user">अधिकारी</span></h1>
-        <p>महाखत व्यवस्थापन पॅनेलमध्ये आपले स्वागत आहे. खालील सुलभ साधनांचा वापर करून डेटा व्यवस्थापित करा.</p>
+        <p>महाखत व्यवस्थापन पॅनेलमध्ये आपले स्वागत आहे. तुमच्या अधिकारक्षेत्रानुसार (Access Level) मेनू खाली उपलब्ध आहेत.</p>
     </div>
 
-    <div id="dataEntryView">
+    <!-- 1. Public Portal Section -->
+    <div id="publicPortalSection" class="dashboard-section">
+        <h2 class="section-header">सार्वजनिक माहिती</h2>
+        <div class="menu-grid">
+            <div class="menu-card">
+                <h2>महाखत मुख्य पोर्टल</h2>
+                <p>राज्यातील शेतकऱ्यांसाठी उपलब्ध असलेले सार्वजनिक खत उपलब्धता पोर्टल पहा.</p>
+                <a href="../index.html" target="_blank" class="menu-link">पोर्टलला भेट द्या</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Data Entry Section -->
+    <div id="dataEntrySection" class="dashboard-section">
+        <h2 class="section-header">डेटा एंट्री व्यवस्थापन</h2>
         <div class="menu-grid">
             <div class="menu-card">
                 <h2>१. किरकोळ साठा एंट्री</h2>
-                <p>आजचा किरकोळ विक्रेत्यांचा (Retailer) रासायनिक खत साठा अपडेट करा.</p>
-                <a href="forms/retailer-stock.html" class="menu-link">फॉर्म उघडा</a>
+                <p>किरकोळ विक्रेत्यांचा (Retailer) खत साठा अपडेट करा.</p>
+                <a href="forms/retailer-stock.html" class="menu-link dynamic-btn">फॉर्म उघडा</a>
             </div>
             <div class="menu-card">
                 <h2>२. घाऊक साठा एंट्री</h2>
-                <p>आजचा घाऊक विक्रेत्यांचा (Wholesaler) रासायनिक खत साठा अपडेट करा.</p>
-                <a href="forms/wholesaler-stock.html" class="menu-link">फॉर्म उघडा</a>
+                <p>घाऊक विक्रेत्यांचा (Wholesaler) खत साठा अपडेट करा.</p>
+                <a href="forms/wholesaler-stock.html" class="menu-link dynamic-btn">फॉर्म उघडा</a>
             </div>
             <div class="menu-card">
                 <h2>३. बफर स्टॉक माहिती</h2>
-                <p>जिल्ह्यातील बफर (संरक्षित) खत साठा आणि रिलिज तारखेची नोंद करा.</p>
-                <a href="forms/buffer-stock.html" class="menu-link">फॉर्म उघडा</a>
-            </div>
-            <div class="menu-card">
-                <h2>४. बंद दुकाने व्यवस्थापन</h2>
-                <p>निलंबित किंवा तात्पुरत्या बंद असलेल्या कृषी सेवा केंद्रांचे व्यवस्थापन करा.</p>
-                <a href="forms/defunct-shops.html" class="menu-link">फॉर्म उघडा</a>
-            </div>
-            <div class="menu-card">
-                <h2>५. गहाळ तालुका माहिती</h2>
-                <p>पोर्टलवर एखादी तालुक्याची माहिती किंवा मॅपिंग गहाळ असल्यास नोंद करा.</p>
-                <a href="forms/missing-taluka.html" class="menu-link">फॉर्म उघडा</a>
+                <p>संरक्षित खत साठा आणि रिलिज तारखेची नोंद करा.</p>
+                <a href="forms/buffer-stock.html" class="menu-link dynamic-btn">फॉर्म उघडा</a>
             </div>
         </div>
     </div>
 
-    <div id="seniorView">
-        <div class="stats-summary">
-            <div class="stat-box" style="border-top-color: #2e7d32;">
-                <h3>एकूण अपडेटेड जिल्हे</h3>
-                <p id="stat_districts">१ / ३६</p>
-            </div>
-            <div class="stat-box" style="border-top-color: #ff9800;">
-                <h3>एकूण रिटेल साठा (राज्य)</h3>
-                <p id="stat_retail">५,००० मे.टन</p>
-            </div>
-            <div class="stat-box" style="border-top-color: #e91e63;">
-                <h3>एकूण बफर साठा (राज्य)</h3>
-                <p id="stat_buffer">५०० मे.टन</p>
+    <!-- 3. Stock Report Section -->
+    <div id="stockReportSection" class="dashboard-section">
+        <h2 class="section-header">खत साठा अहवाल (रिपोर्ट)</h2>
+        <div class="menu-grid">
+            <div class="menu-card">
+                <h2>"Stock as on today" अहवाल</h2>
+                <p>तुमच्या कार्यक्षेत्रातील आजचा खत साठा आणि एकूण गोषवारा पहा.</p>
+                <a href="reports/stock-report.html" class="menu-link">अहवाल पहा</a>
             </div>
         </div>
-        
-        <h2>राज्यस्तरीय खत उपलब्धता गोषवारा</h2>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>जिल्हा</th>
-                        <th>अद्ययावत तारीख</th>
-                        <th>रिटेल साठा (मे.टन/बॅग्ज)</th>
-                        <th>होलसेल साठा (मे.टन/बॅग्ज)</th>
-                        <th>बफर साठा (मे.टन)</th>
-                        <th>सक्रिय विक्रेते</th>
-                        <th>संपर्क (FGL)</th>
-                    </tr>
-                </thead>
-                <tbody id="seniorTableBody">
-                    <tr>
-                        <td><b>वाशिम</b></td>
-                        <td>२३ जून २०२६</td>
-                        <td>५,००० मे.टन<br><small>(१,००,००० बॅग्ज)</small></td>
-                        <td>२,००० मे.टन<br><small>(४०,००० बॅग्ज)</small></td>
-                        <td>५०० मे.टन</td>
-                        <td>४५०</td>
-                        <td><a href="tel:+919999999999" class="call-btn">📞 ADO ला कॉल करा</a></td>
-                    </tr>
-                </tbody>
-            </table>
+    </div>
+
+    <!-- 4. User Management Section -->
+    <div id="userMgmtSection" class="dashboard-section">
+        <h2 class="section-header">युझर मॅनेजमेंट (अधिकारी व्यवस्थापन)</h2>
+        <div class="menu-grid">
+            <div class="menu-card">
+                <h2>अधिकारी पासवर्ड व नियंत्रण</h2>
+                <p>अधिनिस्थ अधिकाऱ्यांची माहिती अपडेट करा आणि पासवर्ड रिसेट करा.</p>
+                <a href="user-management.html" id="userMgmtBtn" class="menu-link">नियंत्रण पॅनेल उघडा</a>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // सुरक्षा तपासणी: युझर लॉगिन आहे की नाही ते तपासणे
     document.addEventListener('DOMContentLoaded', function() {
         const sessionData = sessionStorage.getItem('mahakhat_user');
         
         if (!sessionData) {
-            // जर युझर लॉगिन नसेल तर थेट लॉगिन पेजवर परत पाठवणे
             alert("कृपया सुरक्षा पडताळणीसाठी आधी लॉगिन करा.");
             window.location.href = "login.html";
             return;
@@ -258,17 +126,46 @@
         
         const user = JSON.parse(sessionData);
         
-        // प्रोफाइलवर डेटा सेट करणे
+        // 1. प्रोफाईल सेट करणे
         document.getElementById('display_name').textContent = user.name;
         document.getElementById('display_role').textContent = user.designation + " | " + (user.district || user.division || "महाराष्ट्र");
         document.getElementById('welcome_user').textContent = user.name;
         
-        // युझरच्या भूमिकेनुसार (Role) स्क्रीन बदलणे
-        if (user.role === "Senior_Viewer") {
-            document.getElementById('seniorView').style.display = "block";
-        } else {
-            // डेटा एंट्री ऑपरेटर किंवा जिल्हा स्तरीय अधिकारी
-            document.getElementById('dataEntryView').style.display = "block";
+        const access = user.access;
+
+        // 2. पब्लिक पोर्टल ॲक्सेस
+        if (access.publicPortal === "YES" || access.publicPortal === "ViewOnly") {
+            document.getElementById('publicPortalSection').style.display = "block";
+        }
+
+        // 3. डेटा एंट्री ॲक्सेस
+        if (access.dataEntry === "YES" || access.dataEntry === "ViewOnly") {
+            document.getElementById('dataEntrySection').style.display = "block";
+            
+            // ViewOnly असेल तर बटणांचे स्वरूप बदलणे (हे लॉजिक फॉर्ममध्ये देखील वापरले जाईल)
+            if (access.dataEntry === "ViewOnly") {
+                const btns = document.getElementById('dataEntrySection').querySelectorAll('.dynamic-btn');
+                btns.forEach(btn => {
+                    btn.textContent = "केवळ पाहण्यासाठी उघडा";
+                    btn.classList.add('view-only');
+                });
+            }
+        }
+
+        // 4. स्टॉक रिपोर्ट ॲक्सेस
+        if (access.stockReport === "YES" || access.stockReport === "ViewOnly") {
+            document.getElementById('stockReportSection').style.display = "block";
+        }
+
+        // 5. युझर मॅनेजमेंट ॲक्सेस
+        if (access.userManagement === "YES" || access.userManagement === "ViewOnly") {
+            document.getElementById('userMgmtSection').style.display = "block";
+            const userMgmtBtn = document.getElementById('userMgmtBtn');
+            
+            if (access.userManagement === "ViewOnly") {
+                userMgmtBtn.textContent = "अधिकारी यादी (View Only)";
+                userMgmtBtn.classList.add('view-only');
+            }
         }
     });
 

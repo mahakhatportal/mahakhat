@@ -1,1 +1,156 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MahaKhat - किरकोळ साठा एंट्री</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f4f7f6; color: #333; padding: 20px; }
+        .form-container { background-color: white; max-width: 600px; margin: 30px auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid #2e7d32; }
+        h2 { color: #2e7d32; margin-bottom: 20px; font-size: 22px; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        input:focus, select:focus { outline: none; border-color: #4caf50; }
+        .btn-container { display: flex; gap: 15px; margin-top: 25px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-submit { background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%); color: white; }
+        .btn-submit:hover { background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); }
+        .btn-submit:disabled { background: #cccccc; cursor: not-allowed; }
+        .btn-back { background-color: #757575; color: white; text-align: center; text-decoration: none; display: block; padding: 12px; border-radius: 5px; font-weight: bold; text-align: center; flex: 1; }
+        .btn-back:hover { background-color: #616161; }
+        .message { margin-top: 15px; text-align: center; font-size: 15px; font-weight: 500; }
+        .error-msg { color: #d32f2f; }
+        .success-msg { color: #2e7d32; }
+        .view-only-banner { display: none; background-color: #fff3e0; color: #e65100; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 20px; border: 1px solid #ffe0b2; }
+    </style>
+</head>
+<body>
 
+<div class="form-container">
+    <div id="viewOnlyBanner" class="view-only-banner">⚠️ तुम्हाला केवळ पाहण्याचा (View Only) ॲक्सेस आहे. तुम्ही डेटा सबमिट करू शकत नाही.</div>
+    
+    <h2>१. आजचा किरकोळ खत साठा फॉर्म</h2>
+    
+    <form id="stockForm">
+        <div class="form-group">
+            <label for="taluka">तालुका (Taluka)</label>
+            <select id="taluka" required>
+                <option value="">-- तालुका निवडा --</option>
+                <option value="Washim">वाशिम</option>
+                <option value="Malegaon">मालेगाव</option>
+                <option value="Risod">रिसोड</option>
+                <option value="Mangrulpir">मंगरूळपीर</option>
+                <option value="Karanja">कारंजा</option>
+                <option value="Manora">मानोरा</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="retailerName">किरकोळ विक्रेत्याचे नाव (Retailer Name)</label>
+            <input type="text" id="retailerName" placeholder="कृषी सेवा केंद्राचे नाव टाका" required>
+        </div>
+
+        <div class="form-group">
+            <label for="fertilizerType">खताचा प्रकार (Fertilizer Product)</label>
+            <select id="fertilizerType" required>
+                <option value="">-- खत निवडा --</option>
+                <option value="Urea">Urea (युरिया)</option>
+                <option value="DAP">DAP</option>
+                <option value="MOP">MOP</option>
+                <option value="NPK">NPK</option>
+                <option value="SSP">SSP</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="stockQuantity">आजचा उपलब्ध साठा (Metric Ton मध्ये)</label>
+            <input type="number" id="stockQuantity" step="0.01" placeholder="उदा. 15.50" required>
+        </div>
+
+        <div class="btn-container">
+            <a href="../dashboard.html" class="btn-back">मागे जा</a>
+            <button type="submit" id="submitBtn" class="btn-submit">डेटा सेव्ह करा</button>
+        </div>
+    </form>
+    
+    <div id="msgWindow" class="message"></div>
+</div>
+
+<script>
+    // तुमची Google Apps Script Web App URL इथे टाका
+    const SCRIPT_URL = "येथे_तुमची_गुगल_ॲप्स_स्क्रिप्टची_वेब_अॅप_लिंक_पेस्ट_करा";
+    let isViewOnly = false;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionData = sessionStorage.getItem('mahakhat_user');
+        if (!sessionData) {
+            alert("कृपया आधी लॉगिन करा.");
+            window.location.href = "../login.html";
+            return;
+        }
+        
+        const user = JSON.parse(sessionData);
+        // सुरक्षा आणि परवानग्या तपासणी
+        if (user.access.dataEntry === "NO") {
+            alert("तुम्हाला या फॉर्मचा ॲक्सेस नाही.");
+            window.location.href = "../dashboard.html";
+            return;
+        }
+        
+        // जर ViewOnly असेल तर सबमिट बटन बंद करणे
+        if (user.access.dataEntry === "ViewOnly") {
+            isViewOnly = true;
+            document.getElementById('viewOnlyBanner').style.display = "block";
+            document.getElementById('submitBtn').disabled = true;
+        }
+    });
+
+    document.getElementById('stockForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (isViewOnly) return;
+
+        const msgWin = document.getElementById('msgWindow');
+        const submitBtn = document.getElementById('submitBtn');
+
+        msgWin.className = "message success-msg";
+        msgWin.textContent = "डेटा सर्व्हरवर पाठवला जात आहे...";
+        submitBtn.disabled = true;
+
+        const formData = {
+            action: 'submitRetailerStock',
+            taluka: document.getElementById('taluka').value,
+            retailerName: document.getElementById('retailerName').value,
+            fertilizerType: document.getElementById('fertilizerType').value,
+            stockQuantity: document.getElementById('stockQuantity').value,
+            submittedBy: JSON.parse(sessionStorage.getItem('mahakhat_user')).username
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            if (data.success) {
+                msgWin.className = "message success-msg";
+                msgWin.textContent = "डेटा यशस्वीपणे गुगल शीटमध्ये सेव्ह झाला!";
+                document.getElementById('stockForm').reset();
+            } else {
+                msgWin.className = "message error-msg";
+                msgWin.textContent = "त्रुटी: " + data.message;
+            }
+        })
+        .catch(error => {
+            submitBtn.disabled = false;
+            msgWin.className = "message error-msg";
+            msgWin.textContent = "सर्व्हरशी संपर्क होऊ शकला नाही.";
+            console.error(error);
+        });
+    });
+</script>
+
+</body>
+</html>

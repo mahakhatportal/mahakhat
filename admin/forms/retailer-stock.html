@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MahaKhat - रिटेलर एक्सेल अपलोड</title>
+    <title>MahaKhat - रिटेलर फाईल अपलोड</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
@@ -33,11 +33,11 @@
     <div id="viewOnlyBanner" class="view-only-banner">⚠️ तुम्हाला केवळ पाहण्याचा (View Only) ॲक्सेस आहे. तुम्ही फाईल अपलोड करू शकत नाही.</div>
     
     <h2>iFMS रिटेलर खत साठा अपलोड</h2>
-    <p class="subtitle">तुमच्या जिल्ह्याची डाऊनलोड केलेली एक्सेल फाईल (.xlsx) येथे अपलोड करा</p>
+    <p class="subtitle">तुमच्या जिल्ह्याची एक्सेल (.xlsx) किंवा .CSV फाईल येथे अपलोड करा</p>
     
     <div class="upload-box" onclick="document.getElementById('excelFile').click()">
-        <p>📁 येथे क्लिक करून एक्सेल फाईल निवडा</p>
-        <input type="file" id="excelFile" accept=".xlsx, .xls">
+        <p>📁 येथे क्लिक करून फाईल निवडा (.xlsx, .xls, .csv)</p>
+        <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
     </div>
 
     <div id="fileInfo" class="file-info"></div>
@@ -51,7 +51,9 @@
 </div>
 
 <script>
-   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec";
+    // तुमची अचूक लिंक येथे पेस्ट करायला विसरू नका
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec";
+    
     let isViewOnly = false;
     let parsedRows = [];
 
@@ -64,8 +66,7 @@
         if (user.access.dataEntry === "ViewOnly") { isViewOnly = true; document.getElementById('viewOnlyBanner').style.display = "block"; }
     });
 
-    // एक्सेल फाईल सिलेक्ट झाल्यावर ती वाचणे
-    // एक्सेल फाईल सिलेक्ट झाल्यावर ती वाचणे
+    // फाईल सिलेक्ट झाल्यावर ती वाचणे (.csv आणि .xlsx दोन्हीसाठी)
     document.getElementById('excelFile').addEventListener('change', function(e) {
         if (isViewOnly) return;
         const file = e.target.files[0];
@@ -76,65 +77,77 @@
 
         const reader = new FileReader();
         reader.onload = function(evt) {
-            const data = new Uint8Array(evt.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            
-            // १. संपूर्ण शीटचा डेटा 'Array of Arrays' फॉरमॅटमध्ये वाचणे
-            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            
-            let headerRowIndex = -1;
-            // २. 'District' हा शब्द असलेली ओळ शोधणे (कितीही खाली असली तरी)
-            for(let i = 0; i < rawData.length; i++){
-                let rowStr = rawData[i].join(" ").toLowerCase();
-                if(rowStr.includes("district")) {
-                    headerRowIndex = i;
-                    break;
+            try {
+                let workbook;
+                // फाईल CSV आहे की Excel हे तपासून त्याप्रमाणे वाचणे
+                if (file.name.toLowerCase().endsWith('.csv')) {
+                    const textData = new TextDecoder("utf-8").decode(evt.target.result);
+                    workbook = XLSX.read(textData, { type: 'string' });
+                } else {
+                    const data = new Uint8Array(evt.target.result);
+                    workbook = XLSX.read(data, { type: 'array' });
                 }
-            }
-            
-            if(headerRowIndex === -1) {
-                document.getElementById('msgWindow').className = "message error-msg";
-                document.getElementById('msgWindow').textContent = "त्रुटी: या एक्सेल फाईलमध्ये 'District' हा कॉलम सापडला नाही.";
-                return;
-            }
-            
-            // ३. हेडर्समधील स्पेस काढून स्वच्छ करणे (उदा. " District " -> "District")
-            const headers = rawData[headerRowIndex].map(h => String(h || "").trim());
-            const jsonRows = [];
-            
-            // ४. हेडर्सच्या खालून मुख्य डेटा वाचायला सुरुवात करणे
-            for(let i = headerRowIndex + 1; i < rawData.length; i++){
-                let row = rawData[i];
-                if(row.length === 0 || !row.join("").trim()) continue; // रिकाम्या ओळी वगळणे
+
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
                 
-                let obj = {};
-                for(let j = 0; j < headers.length; j++){
-                    if(headers[j]) {
-                        obj[headers[j]] = row[j] !== undefined ? row[j] : "";
+                const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                let headerRowIndex = -1;
+                // हेडिंगची ओळ शोधणे (कितीही खाली असली तरी)
+                for(let i = 0; i < rawData.length; i++){
+                    if(!rawData[i]) continue;
+                    let rowStr = rawData[i].join(" ").toLowerCase();
+                    if(rowStr.includes("district")) {
+                        headerRowIndex = i;
+                        break;
                     }
                 }
-                // जर 'District' कॉलममध्ये नाव असेल तरच डेटा घेणे
-                if(obj['District'] && String(obj['District']).trim() !== "") {
-                    jsonRows.push(obj);
+                
+                if(headerRowIndex === -1) {
+                    document.getElementById('msgWindow').className = "message error-msg";
+                    document.getElementById('msgWindow').textContent = "त्रुटी: या फाईलमध्ये 'District' हा कॉलम सापडला नाही.";
+                    return;
                 }
-            }
-            
-            if(jsonRows.length === 0) {
+                
+                // स्पेस काढून हेडर्स स्वच्छ करणे
+                const headers = rawData[headerRowIndex].map(h => String(h || "").trim());
+                const jsonRows = [];
+                
+                // मुख्य डेटा वाचणे
+                for(let i = headerRowIndex + 1; i < rawData.length; i++){
+                    let row = rawData[i];
+                    if(row.length === 0 || !row.join("").trim()) continue; 
+                    
+                    let obj = {};
+                    for(let j = 0; j < headers.length; j++){
+                        if(headers[j]) {
+                            obj[headers[j]] = row[j] !== undefined ? row[j] : "";
+                        }
+                    }
+                    if(obj['District'] && String(obj['District']).trim() !== "") {
+                        jsonRows.push(obj);
+                    }
+                }
+                
+                if(jsonRows.length === 0) {
+                    document.getElementById('msgWindow').className = "message error-msg";
+                    document.getElementById('msgWindow').textContent = "निवडलेल्या फाईलमध्ये डेटा नाही.";
+                    return;
+                }
+                
+                parsedRows = jsonRows;
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('msgWindow').className = "message success-msg";
+                document.getElementById('msgWindow').textContent = "फाईल योग्यरित्या वाचली गेली! एकूण " + jsonRows.length + " रेकॉर्ड्स सापडले. अपलोड करण्यासाठी तयार!";
+            } catch (error) {
                 document.getElementById('msgWindow').className = "message error-msg";
-                document.getElementById('msgWindow').textContent = "निवडलेल्या एक्सेल फाईलमध्ये डेटा नाही.";
-                return;
+                document.getElementById('msgWindow').textContent = "फाईल वाचताना त्रुटी आली: " + error.message;
             }
-            
-            parsedRows = jsonRows;
-            document.getElementById('uploadBtn').disabled = false;
-            document.getElementById('msgWindow').className = "message success-msg";
-            document.getElementById('msgWindow').textContent = "एक्सेल फाईल योग्यरित्या वाचली गेली! एकूण " + jsonRows.length + " रेकॉर्ड्स सापडले. अपलोड करण्यासाठी तयार!";
         };
         reader.readAsArrayBuffer(file);
     });
-    // फाईल सर्व्हरवर (Google Script) पाठवणे
+
     document.getElementById('uploadBtn').addEventListener('click', function() {
         if (isViewOnly || parsedRows.length === 0) return;
 
@@ -142,10 +155,9 @@
         const uploadBtn = document.getElementById('uploadBtn');
 
         msgWin.className = "message success-msg";
-        msgWin.textContent = "डेटा प्रोसेस होत आहे...\nजिल्ह्याचा जुना डेटा काढला जात आहे व नवीन डेटा सेव्ह होत आहे.\nकृपया थोडा वेळ थांबा...";
+        msgWin.textContent = "डेटा प्रोसेस होत आहे...\nकृपया थोडा वेळ थांबा...";
         uploadBtn.disabled = true;
 
-// सुधारित X-Ray Fetch Code
         fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({
@@ -153,33 +165,24 @@
                 rowsData: parsedRows
             })
         })
-        .then(response => response.text()) // आधी गुगलचा रिस्पॉन्स मजकूर म्हणून वाचणे
-        .then(text => {
+        .then(response => response.json()) 
+        .then(data => {
             uploadBtn.disabled = false;
-            try {
-                // जर गुगलने योग्य JSON पाठवला असेल तर...
-                const data = JSON.parse(text); 
-                if (data.success) {
-                    msgWin.className = "message success-msg";
-                    msgWin.textContent = "मॅपिंग यशस्वी!\n" + data.message;
-                    document.getElementById('excelFile').value = "";
-                    document.getElementById('fileInfo').style.display = "none";
-                    parsedRows = [];
-                } else {
-                    msgWin.className = "message error-msg";
-                    msgWin.textContent = "त्रुटी: " + data.message;
-                }
-            } catch (e) {
-                // जर गुगलने JSON ऐवजी एरर (HTML) पाठवला असेल तर...
+            if (data.success) {
+                msgWin.className = "message success-msg";
+                msgWin.textContent = "मॅपिंग यशस्वी!\n" + data.message;
+                document.getElementById('excelFile').value = "";
+                document.getElementById('fileInfo').style.display = "none";
+                parsedRows = [];
+            } else {
                 msgWin.className = "message error-msg";
-                msgWin.textContent = "Google Script Error (कंसोल तपासा). सर्व्हरचा मेसेज: " + text.substring(0, 150);
-                console.error("Google Server Error:", text);
+                msgWin.textContent = "त्रुटी: " + data.message;
             }
         })
         .catch(error => {
             uploadBtn.disabled = false;
             msgWin.className = "message error-msg";
-            msgWin.textContent = "नेटवर्क त्रुटी किंवा CORS समस्या. (कंसोल तपासा)";
+            msgWin.textContent = "नेटवर्क त्रुटी. सर्व्हरशी संपर्क होऊ शकला नाही.";
             console.error("Network Error:", error);
         });
     });

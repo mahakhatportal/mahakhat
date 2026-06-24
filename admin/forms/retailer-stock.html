@@ -65,6 +65,7 @@
     });
 
     // एक्सेल फाईल सिलेक्ट झाल्यावर ती वाचणे
+    // एक्सेल फाईल सिलेक्ट झाल्यावर ती वाचणे
     document.getElementById('excelFile').addEventListener('change', function(e) {
         if (isViewOnly) return;
         const file = e.target.files[0];
@@ -80,22 +81,59 @@
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
             
-            // एक्सेल मधील रो डेटा JSON मध्ये बदलणे
-            const jsonRows = XLSX.utils.sheet_to_json(worksheet);
+            // १. संपूर्ण शीटचा डेटा 'Array of Arrays' फॉरमॅटमध्ये वाचणे
+            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            
+            let headerRowIndex = -1;
+            // २. 'District' हा शब्द असलेली ओळ शोधणे (कितीही खाली असली तरी)
+            for(let i = 0; i < rawData.length; i++){
+                let rowStr = rawData[i].join(" ").toLowerCase();
+                if(rowStr.includes("district")) {
+                    headerRowIndex = i;
+                    break;
+                }
+            }
+            
+            if(headerRowIndex === -1) {
+                document.getElementById('msgWindow').className = "message error-msg";
+                document.getElementById('msgWindow').textContent = "त्रुटी: या एक्सेल फाईलमध्ये 'District' हा कॉलम सापडला नाही.";
+                return;
+            }
+            
+            // ३. हेडर्समधील स्पेस काढून स्वच्छ करणे (उदा. " District " -> "District")
+            const headers = rawData[headerRowIndex].map(h => String(h || "").trim());
+            const jsonRows = [];
+            
+            // ४. हेडर्सच्या खालून मुख्य डेटा वाचायला सुरुवात करणे
+            for(let i = headerRowIndex + 1; i < rawData.length; i++){
+                let row = rawData[i];
+                if(row.length === 0 || !row.join("").trim()) continue; // रिकाम्या ओळी वगळणे
+                
+                let obj = {};
+                for(let j = 0; j < headers.length; j++){
+                    if(headers[j]) {
+                        obj[headers[j]] = row[j] !== undefined ? row[j] : "";
+                    }
+                }
+                // जर 'District' कॉलममध्ये नाव असेल तरच डेटा घेणे
+                if(obj['District'] && String(obj['District']).trim() !== "") {
+                    jsonRows.push(obj);
+                }
+            }
             
             if(jsonRows.length === 0) {
-                alert("निवडलेली एक्सेल फाईल रिकामी आहे.");
+                document.getElementById('msgWindow').className = "message error-msg";
+                document.getElementById('msgWindow').textContent = "निवडलेल्या एक्सेल फाईलमध्ये डेटा नाही.";
                 return;
             }
             
             parsedRows = jsonRows;
             document.getElementById('uploadBtn').disabled = false;
             document.getElementById('msgWindow').className = "message success-msg";
-            document.getElementById('msgWindow').textContent = "एकूण " + jsonRows.length + " रेकॉर्ड्स सापडले. अपलोड करण्यासाठी तयार!";
+            document.getElementById('msgWindow').textContent = "एक्सेल फाईल योग्यरित्या वाचली गेली! एकूण " + jsonRows.length + " रेकॉर्ड्स सापडले. अपलोड करण्यासाठी तयार!";
         };
         reader.readAsArrayBuffer(file);
     });
-
     // फाईल सर्व्हरवर (Google Script) पाठवणे
     document.getElementById('uploadBtn').addEventListener('click', function() {
         if (isViewOnly || parsedRows.length === 0) return;

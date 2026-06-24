@@ -1,1 +1,188 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MahaKhat - घाऊक साठा अपलोड</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f4f7f6; color: #333; padding: 20px; }
+        .form-container { background-color: white; max-width: 600px; margin: 40px auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid #1565c0; }
+        h2 { color: #1565c0; margin-bottom: 10px; font-size: 22px; text-align: center; }
+        p.subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
+        .upload-box { border: 2px dashed #1565c0; padding: 30px; text-align: center; border-radius: 6px; background-color: #fafdfff5; cursor: pointer; margin-bottom: 20px; }
+        .upload-box input { display: none; }
+        .upload-box p { font-size: 16px; color: #444; font-weight: 500; }
+        .file-info { display: none; background-color: #e3f2fd; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; font-weight: bold; color: #1565c0; }
+        .btn-container { display: flex; gap: 15px; margin-top: 25px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-submit { background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%); color: white; }
+        .btn-submit:hover { background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%); }
+        .btn-submit:disabled { background: #cccccc; cursor: not-allowed; }
+        .btn-back { background-color: #757575; color: white; text-align: center; text-decoration: none; display: block; padding: 12px; border-radius: 5px; font-weight: bold; flex: 1; }
+        .message { margin-top: 15px; text-align: center; font-size: 15px; font-weight: 500; white-space: pre-line; }
+        .error-msg { color: #d32f2f; }
+        .success-msg { color: #1565c0; }
+        .view-only-banner { display: none; background-color: #fff3e0; color: #e65100; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
 
+<div class="form-container">
+    <div id="viewOnlyBanner" class="view-only-banner">⚠️ तुम्हाला केवळ पाहण्याचा (View Only) ॲक्सेस आहे. तुम्ही फाईल अपलोड करू शकत नाही.</div>
+    
+    <h2>iFMS घाऊक (Wholesaler) खत साठा अपलोड</h2>
+    <p class="subtitle">तुमच्या जिल्ह्याची घाऊक (Wholesaler) .CSV किंवा एक्सेल फाईल येथे अपलोड करा</p>
+    
+    <div class="upload-box" onclick="document.getElementById('excelFile').click()">
+        <p>📁 येथे क्लिक करून फाईल निवडा (.csv, .xlsx)</p>
+        <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
+    </div>
+
+    <div id="fileInfo" class="file-info"></div>
+    
+    <div class="btn-container">
+        <a href="../dashboard.html" class="btn-back">मागे जा</a>
+        <button id="uploadBtn" class="btn-submit" disabled>फाईल अपलोड करा</button>
+    </div>
+    
+    <div id="msgWindow" class="message"></div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec";
+    let isViewOnly = false;
+    let parsedRows = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionData = sessionStorage.getItem('mahakhat_user');
+        if (!sessionData) { alert("कृपया आधी लॉगिन करा."); window.location.href = "../login.html"; return; }
+        const user = JSON.parse(sessionData);
+        if (user.access.dataEntry === "NO") { alert("ॲक्सेस नाकारला."); window.location.href = "../dashboard.html"; return; }
+        if (user.access.dataEntry === "ViewOnly") { isViewOnly = true; document.getElementById('viewOnlyBanner').style.display = "block"; }
+    });
+
+    document.getElementById('excelFile').addEventListener('change', function(e) {
+        if (isViewOnly) return;
+        const file = e.target.files[0];
+        if (!file) return;
+
+        document.getElementById('fileInfo').style.display = "block";
+        document.getElementById('fileInfo').textContent = "निवडलेली फाईल: " + file.name;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                let workbook;
+                if (file.name.toLowerCase().endsWith('.csv')) {
+                    const textData = new TextDecoder("utf-8").decode(evt.target.result);
+                    workbook = XLSX.read(textData, { type: 'string' });
+                } else {
+                    const data = new Uint8Array(evt.target.result);
+                    workbook = XLSX.read(data, { type: 'array' });
+                }
+
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                
+                // --- नवीन सुरक्षा: फाईल होलसेलरचीच आहे का हे पहिल्या ओळीवरून तपासणे ---
+                let firstRowText = (rawData[0] || []).join(" ").toLowerCase();
+                if (!firstRowText.includes("wholesaler")) {
+                    document.getElementById('msgWindow').className = "message error-msg";
+                    document.getElementById('msgWindow').textContent = "ही फाईल 'Wholesaler' ची नाही. कृपया योग्य फाईल तपासा आणि पुन्हा प्रयत्न करा.";
+                    return; // चुकीची फाईल इथेच अडवली जाईल
+                }
+                
+                let headerRowIndex = -1;
+                // होलसेलर फाईलमध्ये 'District Name' हा शब्द शोधणे
+                for(let i = 0; i < rawData.length; i++){
+                    if(!rawData[i]) continue;
+                    let rowStr = rawData[i].join(" ").toLowerCase();
+                    if(rowStr.includes("district name")) {
+                        headerRowIndex = i;
+                        break;
+                    }
+                }
+                
+                if(headerRowIndex === -1) {
+                    document.getElementById('msgWindow').className = "message error-msg";
+                    document.getElementById('msgWindow').textContent = "त्रुटी: या फाईलमध्ये 'District Name' हा कॉलम सापडला नाही.";
+                    return;
+                }
+                
+                const headers = rawData[headerRowIndex].map(h => String(h || "").trim());
+                const jsonRows = [];
+                
+                for(let i = headerRowIndex + 1; i < rawData.length; i++){
+                    let row = rawData[i];
+                    if(row.length === 0 || !row.join("").trim()) continue; 
+                    
+                    let obj = {};
+                    for(let j = 0; j < headers.length; j++){
+                        if(headers[j]) obj[headers[j]] = row[j] !== undefined ? row[j] : "";
+                    }
+                    if(obj['District Name'] && String(obj['District Name']).trim() !== "") {
+                        jsonRows.push(obj);
+                    }
+                }
+                
+                if(jsonRows.length === 0) {
+                    document.getElementById('msgWindow').className = "message error-msg";
+                    document.getElementById('msgWindow').textContent = "निवडलेल्या फाईलमध्ये डेटा नाही.";
+                    return;
+                }
+                
+                parsedRows = jsonRows;
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('msgWindow').className = "message success-msg";
+                document.getElementById('msgWindow').textContent = "फाईल वाचली गेली! एकूण " + jsonRows.length + " होलसेलर रेकॉर्ड्स. अपलोडसाठी तयार!";
+            } catch (error) {
+                document.getElementById('msgWindow').className = "message error-msg";
+                document.getElementById('msgWindow').textContent = "फाईल वाचताना त्रुटी: " + error.message;
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('uploadBtn').addEventListener('click', function() {
+        if (isViewOnly || parsedRows.length === 0) return;
+
+        const msgWin = document.getElementById('msgWindow');
+        const uploadBtn = document.getElementById('uploadBtn');
+
+        msgWin.className = "message success-msg";
+        msgWin.textContent = "डेटा प्रोसेस होत आहे...\nफक्त जुना होलसेलर डेटा हटवून नवीन जोडला जात आहे...";
+        uploadBtn.disabled = true;
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'uploadWholesalerStock',
+                rowsData: parsedRows
+            })
+        })
+        .then(response => response.json()) 
+        .then(data => {
+            uploadBtn.disabled = false;
+            if (data.success) {
+                msgWin.className = "message success-msg";
+                msgWin.textContent = "मॅपिंग यशस्वी!\n" + data.message;
+                document.getElementById('excelFile').value = "";
+                document.getElementById('fileInfo').style.display = "none";
+                parsedRows = [];
+            } else {
+                msgWin.className = "message error-msg";
+                msgWin.textContent = "त्रुटी: " + data.message;
+            }
+        })
+        .catch(error => {
+            uploadBtn.disabled = false;
+            msgWin.className = "message error-msg";
+            msgWin.textContent = "नेटवर्क त्रुटी. सर्व्हरशी संपर्क होऊ शकला नाही.";
+        });
+    });
+</script>
+
+</body>
+</html>

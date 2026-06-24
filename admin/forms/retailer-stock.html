@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MahaKhat - रिटेलर फाईल अपलोड</title>
+    <title>MahaKhat - किरकोळ (Retailer) साठा अपलोड</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
@@ -33,10 +33,10 @@
     <div id="viewOnlyBanner" class="view-only-banner">⚠️ तुम्हाला केवळ पाहण्याचा (View Only) ॲक्सेस आहे. तुम्ही फाईल अपलोड करू शकत नाही.</div>
     
     <h2>iFMS रिटेलर खत साठा अपलोड</h2>
-    <p class="subtitle">तुमच्या जिल्ह्याची एक्सेल (.xlsx) किंवा .CSV फाईल येथे अपलोड करा</p>
+    <p class="subtitle">तुमच्या जिल्ह्याची रिटेलर (Retailer) .CSV किंवा एक्सेल फाईल येथे अपलोड करा</p>
     
     <div class="upload-box" onclick="document.getElementById('excelFile').click()">
-        <p>📁 येथे क्लिक करून फाईल निवडा (.xlsx, .xls, .csv)</p>
+        <p>📁 येथे क्लिक करून फाईल निवडा (.csv, .xlsx)</p>
         <input type="file" id="excelFile" accept=".xlsx, .xls, .csv">
     </div>
 
@@ -51,7 +51,7 @@
 </div>
 
 <script>
-    // तुमची अचूक लिंक येथे पेस्ट करायला विसरू नका
+    // तुमची मुख्य गुगल स्क्रिप्ट लिंक
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec";
     
     let isViewOnly = false;
@@ -66,7 +66,6 @@
         if (user.access.dataEntry === "ViewOnly") { isViewOnly = true; document.getElementById('viewOnlyBanner').style.display = "block"; }
     });
 
-    // फाईल सिलेक्ट झाल्यावर ती वाचणे (.csv आणि .xlsx दोन्हीसाठी)
     document.getElementById('excelFile').addEventListener('change', function(e) {
         if (isViewOnly) return;
         const file = e.target.files[0];
@@ -79,7 +78,7 @@
         reader.onload = function(evt) {
             try {
                 let workbook;
-                // फाईल CSV आहे की Excel हे तपासून त्याप्रमाणे वाचणे
+                // फाईल CSV आहे की Excel हे तपासून वाचणे
                 if (file.name.toLowerCase().endsWith('.csv')) {
                     const textData = new TextDecoder("utf-8").decode(evt.target.result);
                     workbook = XLSX.read(textData, { type: 'string' });
@@ -90,11 +89,18 @@
 
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                
                 const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                 
+                // --- नवीन सुरक्षा: फाईल 'Retailer' चीच आहे का हे पहिल्या ओळीवरून तपासणे ---
+                let firstRowText = (rawData[0] || []).join(" ").toLowerCase();
+                if (!firstRowText.includes("retailer")) {
+                    document.getElementById('msgWindow').className = "message error-msg";
+                    document.getElementById('msgWindow').textContent = "ही फाईल 'Retailer' ची नाही. कृपया योग्य फाईल तपासा आणि पुन्हा प्रयत्न करा.";
+                    return; // चुकीची फाईल इथेच अडवली जाईल
+                }
+                
                 let headerRowIndex = -1;
-                // हेडिंगची ओळ शोधणे (कितीही खाली असली तरी)
+                // हेडिंगची ओळ शोधणे (District)
                 for(let i = 0; i < rawData.length; i++){
                     if(!rawData[i]) continue;
                     let rowStr = rawData[i].join(" ").toLowerCase();
@@ -110,11 +116,9 @@
                     return;
                 }
                 
-                // स्पेस काढून हेडर्स स्वच्छ करणे
                 const headers = rawData[headerRowIndex].map(h => String(h || "").trim());
                 const jsonRows = [];
                 
-                // मुख्य डेटा वाचणे
                 for(let i = headerRowIndex + 1; i < rawData.length; i++){
                     let row = rawData[i];
                     if(row.length === 0 || !row.join("").trim()) continue; 
@@ -139,7 +143,7 @@
                 parsedRows = jsonRows;
                 document.getElementById('uploadBtn').disabled = false;
                 document.getElementById('msgWindow').className = "message success-msg";
-                document.getElementById('msgWindow').textContent = "फाईल योग्यरित्या वाचली गेली! एकूण " + jsonRows.length + " रेकॉर्ड्स सापडले. अपलोड करण्यासाठी तयार!";
+                document.getElementById('msgWindow').textContent = "फाईल वाचली गेली! एकूण " + jsonRows.length + " रिटेलर रेकॉर्ड्स. अपलोडसाठी तयार!";
             } catch (error) {
                 document.getElementById('msgWindow').className = "message error-msg";
                 document.getElementById('msgWindow').textContent = "फाईल वाचताना त्रुटी आली: " + error.message;
@@ -155,7 +159,7 @@
         const uploadBtn = document.getElementById('uploadBtn');
 
         msgWin.className = "message success-msg";
-        msgWin.textContent = "डेटा प्रोसेस होत आहे...\nकृपया थोडा वेळ थांबा...";
+        msgWin.textContent = "डेटा प्रोसेस होत आहे...\nफक्त जुना रिटेलर डेटा हटवून नवीन जोडला जात आहे...";
         uploadBtn.disabled = true;
 
         fetch(SCRIPT_URL, {
@@ -183,7 +187,6 @@
             uploadBtn.disabled = false;
             msgWin.className = "message error-msg";
             msgWin.textContent = "नेटवर्क त्रुटी. सर्व्हरशी संपर्क होऊ शकला नाही.";
-            console.error("Network Error:", error);
         });
     });
 </script>

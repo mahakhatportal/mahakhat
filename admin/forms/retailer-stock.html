@@ -107,6 +107,7 @@
         msgWin.textContent = "डेटा प्रोसेस होत आहे...\nजिल्ह्याचा जुना डेटा काढला जात आहे व नवीन डेटा सेव्ह होत आहे.\nकृपया थोडा वेळ थांबा...";
         uploadBtn.disabled = true;
 
+// सुधारित X-Ray Fetch Code
         fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({
@@ -114,25 +115,34 @@
                 rowsData: parsedRows
             })
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => response.text()) // आधी गुगलचा रिस्पॉन्स मजकूर म्हणून वाचणे
+        .then(text => {
             uploadBtn.disabled = false;
-            if (data.success) {
-                msgWin.className = "message success-msg";
-                msgWin.textContent = "मॅपिंग यशस्वी!\n" + data.message;
-                document.getElementById('excelFile').value = "";
-                document.getElementById('fileInfo').style.display = "none";
-                parsedRows = [];
-            } else {
+            try {
+                // जर गुगलने योग्य JSON पाठवला असेल तर...
+                const data = JSON.parse(text); 
+                if (data.success) {
+                    msgWin.className = "message success-msg";
+                    msgWin.textContent = "मॅपिंग यशस्वी!\n" + data.message;
+                    document.getElementById('excelFile').value = "";
+                    document.getElementById('fileInfo').style.display = "none";
+                    parsedRows = [];
+                } else {
+                    msgWin.className = "message error-msg";
+                    msgWin.textContent = "त्रुटी: " + data.message;
+                }
+            } catch (e) {
+                // जर गुगलने JSON ऐवजी एरर (HTML) पाठवला असेल तर...
                 msgWin.className = "message error-msg";
-                msgWin.textContent = "त्रुटी: " + data.message;
+                msgWin.textContent = "Google Script Error (कंसोल तपासा). सर्व्हरचा मेसेज: " + text.substring(0, 150);
+                console.error("Google Server Error:", text);
             }
         })
         .catch(error => {
             uploadBtn.disabled = false;
             msgWin.className = "message error-msg";
-            msgWin.textContent = "सर्व्हरशी संपर्क होऊ शकला नाही. पुन्हा प्रयत्न करा.";
-            console.error(error);
+            msgWin.textContent = "नेटवर्क त्रुटी किंवा CORS समस्या. (कंसोल तपासा)";
+            console.error("Network Error:", error);
         });
     });
 </script>

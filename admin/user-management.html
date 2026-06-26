@@ -4,87 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MahaKhat - अधिनिस्त अधिकारी नियंत्रण</title>
-    
-    <!-- मुख्य CSS फाईल -->
     <link rel="stylesheet" href="../css/style.css">
-    
     <style>
         body { background-color: var(--bg-light); padding: 20px; }
         .page-container { max-width: 1100px; margin: 0 auto; }
         
-        /* आकर्षक हेडर */
         .page-header { background: linear-gradient(135deg, var(--primary-color) 0%, #2a4365 100%); color: white; padding: 25px 30px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--secondary-color); }
         .header-titles h1 { color: white; font-size: 24px; margin-bottom: 5px; }
         .header-titles p { color: #cbd5e1; font-size: 14px; margin: 0; }
-        .back-btn { background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; transition: background 0.3s; border: 1px solid rgba(255,255,255,0.3); }
-        .back-btn:hover { background: rgba(255,255,255,0.25); color: white; }
-
-        /* मुख्य कार्ड आणि टूलबार */
+        .back-btn { background: rgba(255,255,255,0.15); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.3); }
+        
         .content-card { background: white; border-radius: var(--border-radius); padding: 25px; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
         .table-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-        .search-box { padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; max-width: 320px; font-size: 14px; outline: none; transition: 0.3s; }
-        .search-box:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
-        .btn-refresh { background: var(--secondary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-        .btn-refresh:hover { background: #1b5e20; transform: translateY(-1px); }
+        .search-box { padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; max-width: 320px; font-size: 14px; outline: none; }
+        .btn-refresh { background: var(--secondary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 
-        /* टेबल डिझाईन */
-        .table-responsive { overflow-x: auto; }
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
         th { background: #f8fafc; color: var(--primary-color); font-weight: 600; padding: 15px; border-bottom: 2px solid #e2e8f0; text-align: left; font-size: 14px; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); font-size: 14.5px; vertical-align: middle; }
-        tr:hover td { background-color: #f8fafc; }
         
         .badge-id { background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 13px; font-weight: bold; border: 1px solid #e2e8f0; }
         .badge-designation { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; display: inline-block; }
-        .btn-action { background: var(--accent-color); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-action:hover { background: var(--primary-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-
-        /* पॉप-अप मोडल डिझाईन */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); transform: translateY(-20px); animation: slideDown 0.3s forwards; }
-        @keyframes slideDown { to { transform: translateY(0); } }
-        .modal-header { margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        .modal-header h3 { color: var(--primary-color); font-size: 20px; margin: 0; }
-        .modal-body p { margin-bottom: 15px; font-size: 14.5px; color: var(--text-main); background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; }
-        .modal-body label { font-size: 13px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; display: block; }
-        .modal-body input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; margin-bottom: 25px; transition: 0.3s; }
-        .modal-body input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15); }
-        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
-        .btn-cancel { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-cancel:hover { background: #e2e8f0; }
-        .btn-save { background: var(--secondary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-save:hover { background: #15803d; }
         
-        .view-only-alert { display: none; background: #fff3e0; color: #e65100; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; text-align: center; border: 1px solid #ffe0b2; }
+        /* ॲक्शन बटन्स */
+        .btn-action { background: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 5px; }
+        .btn-contact { background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        /* मोडल (पॉप-अप) डिझाईन */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal-header h3 { color: var(--primary-color); font-size: 20px; margin: 0 0 15px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        
+        /* संपर्क ग्रिड */
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .contact-btn { display: flex; align-items: center; justify-content: center; padding: 12px; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; font-size: 14px; text-align: center; }
+        .call-btn { background-color: #0284c7; }
+        .sms-btn { background-color: #8b5cf6; }
+        .wa-btn { background-color: #16a34a; }
+        .email-btn { background-color: #ea4335; }
+        
+        .modal-body input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; margin-bottom: 20px; margin-top: 5px; }
+        .btn-cancel { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; }
+        .btn-save { background: var(--secondary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="page-container">
-        
-        <!-- अधिकृत हेडर -->
         <div class="page-header">
             <div class="header-titles">
                 <h1>👥 अधिनिस्त अधिकारी नियंत्रण कक्ष</h1>
-                <p>तुमच्या कार्यक्षेत्रातील अधिकाऱ्यांची यादी आणि पासवर्ड व्यवस्थापन (User Management)</p>
+                <p>तुमच्या कार्यक्षेत्रातील अधिकाऱ्यांची यादी आणि संपर्क व्यवस्थापन</p>
             </div>
             <a href="dashboard.html" class="back-btn">← डॅशबोर्डवर परत</a>
         </div>
 
-        <div id="viewOnlyAlert" class="view-only-alert">
-            ⚠️ तुम्हाला केवळ पाहण्याचा (View Only) अधिकार आहे. तुम्ही पासवर्ड बदलू शकत नाही.
-        </div>
         <div id="msgBox" class="message" style="display:none;"></div>
 
-        <!-- मुख्य कंटेनर -->
         <div class="content-card">
-            
             <div class="table-toolbar">
                 <input type="text" id="searchInput" class="search-box" placeholder="अधिकारी, आयडी किंवा जिल्हा शोधा..." onkeyup="filterTable()">
                 <button class="btn-refresh" onclick="loadUsers()">🔄 यादी रिफ्रेश करा</button>
             </div>
 
-            <div class="table-responsive">
+            <div style="overflow-x: auto;">
                 <table id="usersTable">
                     <thead>
                         <tr>
@@ -93,40 +76,55 @@
                             <th>पदनाम (Role)</th>
                             <th>जिल्हा/तालुका</th>
                             <th>मोबाईल क्र.</th>
-                            <th class="action-col">कृती (Action)</th>
+                            <th class="action-col" style="min-width: 200px;">कृती (Action)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">डेटा लोड होत आहे... कृपया प्रतीक्षा करा.</td></tr>
+                        <tr><td colspan="6" style="text-align: center; padding: 30px;">डेटा लोड होत आहे...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Password Reset Modal -->
+    <!-- 1. Password Reset Modal -->
     <div id="passwordModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>🔑 पासवर्ड रिसेट करा</h3>
-            </div>
+            <div class="modal-header"><h3>🔑 पासवर्ड रिसेट करा</h3></div>
             <div class="modal-body">
                 <p>अधिकारी: <strong id="targetUserDisplay"></strong></p>
                 <input type="hidden" id="targetUserId">
-                <label>नवीन पासवर्ड एंटर करा:</label>
+                <label style="font-weight: bold; font-size: 13px; color: #64748b;">नवीन पासवर्ड एंटर करा:</label>
                 <input type="text" id="newPassword" placeholder="उदा. Washim@123" required autocomplete="off">
             </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" onclick="closeModal()">रद्द करा</button>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn-cancel" style="width: auto; margin-top: 0;" onclick="closeModal('passwordModal')">रद्द करा</button>
                 <button class="btn-save" id="savePasswordBtn" onclick="saveNewPassword()">सेव्ह करा</button>
             </div>
         </div>
     </div>
 
+    <!-- 2. Contact Options Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>📞 संपर्क साधा</h3></div>
+            <div class="modal-body">
+                <p style="text-align: center; font-size: 16px; margin: 0;"><strong id="contactNameDisplay"></strong></p>
+                <p style="text-align: center; font-size: 13px; color: #64748b; margin-top: 5px;" id="contactRoleDisplay"></p>
+                
+                <div class="contact-grid">
+                    <a href="#" id="btnCall" class="contact-btn call-btn">📞 कॉल करा</a>
+                    <a href="#" id="btnSms" class="contact-btn sms-btn">💬 SMS करा</a>
+                    <a href="#" id="btnWa" target="_blank" class="contact-btn wa-btn">🟢 WhatsApp</a>
+                    <a href="#" id="btnEmail" target="_blank" class="contact-btn email-btn">📧 Email करा</a>
+                </div>
+            </div>
+            <button class="btn-cancel" onclick="closeModal('contactModal')">बंद करा</button>
+        </div>
+    </div>
+
     <script>
-        // सूचना: खालील लिंक तुमच्या वेब ॲपच्या URL ने बदला
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec";
-        
         let loggedInUser = null;
         let isViewOnly = false;
 
@@ -136,36 +134,28 @@
             
             loggedInUser = JSON.parse(sessionData);
             
-            // ॲक्सेस तपासणी
             if (loggedInUser.access.userManagement === 'NO') {
-                alert("तुम्हाला या पेजचा ॲक्सेस नाही.");
-                window.location.href = "dashboard.html";
-                return;
+                window.location.href = "dashboard.html"; return;
             }
             if (loggedInUser.access.userManagement === 'ViewOnly') {
                 isViewOnly = true;
-                document.getElementById('viewOnlyAlert').style.display = "block";
-                document.querySelector('.action-col').style.display = "none";
             }
-
             loadUsers();
         });
 
-        // स्मार्ट सर्च फिल्टर
         function filterTable() {
             const input = document.getElementById("searchInput").value.toUpperCase();
             const trs = document.querySelectorAll("#usersTable tbody tr");
             trs.forEach(tr => {
                 if (tr.querySelector("td") && tr.querySelector("td").colSpan !== 6) { 
-                    const text = tr.textContent.toUpperCase();
-                    tr.style.display = text.includes(input) ? "" : "none";
+                    tr.style.display = tr.textContent.toUpperCase().includes(input) ? "" : "none";
                 }
             });
         }
 
         function loadUsers() {
             const tbody = document.querySelector('#usersTable tbody');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">तुमच्या अधिनिस्त अधिकाऱ्यांची यादी शोधत आहे...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">अधिनिस्त अधिकाऱ्यांची यादी शोधत आहे...</td></tr>';
             
             fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -173,56 +163,89 @@
             })
             .then(res => res.json())
             .then(res => {
-                if(res.success) {
-                    renderTable(res.data);
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="6" class="error-msg" style="text-align:center; color:red;">${res.message}</td></tr>`;
-                }
+                if(res.success) renderTable(res.data);
+                else tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${res.message}</td></tr>`;
             })
             .catch(err => {
-                tbody.innerHTML = '<tr><td colspan="6" class="error-msg" style="text-align:center; color:red;">नेटवर्क त्रुटी. सर्व्हरशी संपर्क होऊ शकला नाही.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">नेटवर्क त्रुटी. सर्व्हरशी संपर्क होऊ शकला नाही.</td></tr>';
             });
         }
 
         function renderTable(users) {
             const tbody = document.querySelector('#usersTable tbody');
             tbody.innerHTML = '';
-            
             if(users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #64748b;">तुमच्या नियंत्रणाखाली सध्या कोणतेही अधिकारी नोंदणीकृत नाहीत.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">कोणतेही अधिकारी नोंदणीकृत नाहीत.</td></tr>';
                 return;
             }
 
             users.forEach(u => {
                 const tr = document.createElement('tr');
-                let actionCell = isViewOnly ? '' : `<td><button class="btn-action" onclick="openModal('${u.userId}', '${u.name}')">पासवर्ड बदला</button></td>`;
+                
+                // मोबाईल नंबर नसल्यास "उपलब्ध नाही" दाखवणे
+                let mobileDisplay = u.mobile ? u.mobile : '<span style="color:#94a3b8; font-size:12px;">उपलब्ध नाही</span>';
+                
+                // बटणे तयार करणे
+                let passBtn = isViewOnly ? '' : `<button class="btn-action" onclick="openPassModal('${u.userId}', '${u.name}')">पासवर्ड</button>`;
+                let contactBtn = `<button class="btn-contact" onclick="openContactModal('${u.name}', '${u.designation}', '${u.mobile}', '${u.email}')">संपर्क करा</button>`;
                 
                 tr.innerHTML = `
                     <td><span class="badge-id">${u.userId}</span></td>
                     <td><strong>${u.name}</strong></td>
                     <td><span class="badge-designation">${u.designation}</span></td>
                     <td>${u.district}</td>
-                    <td>${u.mobile}</td>
-                    ${actionCell}
+                    <td>${mobileDisplay}</td>
+                    <td>${passBtn} ${contactBtn}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function openModal(userId, name) {
-            if(isViewOnly) return;
+        function openPassModal(userId, name) {
             document.getElementById('targetUserId').value = userId;
             document.getElementById('targetUserDisplay').textContent = name + " (" + userId + ")";
             document.getElementById('newPassword').value = "";
             document.getElementById('passwordModal').style.display = "flex";
         }
 
-        function closeModal() {
-            document.getElementById('passwordModal').style.display = "none";
+        function openContactModal(name, role, mobile, email) {
+            document.getElementById('contactNameDisplay').textContent = name;
+            document.getElementById('contactRoleDisplay').textContent = role;
+            
+            const btnCall = document.getElementById('btnCall');
+            const btnSms = document.getElementById('btnSms');
+            const btnWa = document.getElementById('btnWa');
+            const btnEmail = document.getElementById('btnEmail');
+
+            // मोबाईल नंबर फॉरमॅटिंग
+            let cleanMobile = String(mobile).replace(/\D/g, '');
+            let waMobile = cleanMobile;
+            if (waMobile.length === 10) waMobile = '91' + waMobile; // WhatsApp ला कंट्री कोड लागतो
+
+            if (cleanMobile) {
+                btnCall.href = `tel:+91${cleanMobile}`;
+                btnSms.href = `sms:+91${cleanMobile}`;
+                btnWa.href = `https://wa.me/${waMobile}`;
+                btnCall.style.display = "flex"; btnSms.style.display = "flex"; btnWa.style.display = "flex";
+            } else {
+                btnCall.style.display = "none"; btnSms.style.display = "none"; btnWa.style.display = "none";
+            }
+
+            if (email && email !== "undefined") {
+                btnEmail.href = `mailto:${email}`;
+                btnEmail.style.display = "flex";
+            } else {
+                btnEmail.style.display = "none";
+            }
+
+            document.getElementById('contactModal').style.display = "flex";
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
         }
 
         function saveNewPassword() {
-            if(isViewOnly) return;
             const targetUser = document.getElementById('targetUserId').value;
             const newPass = document.getElementById('newPassword').value.trim();
             const btn = document.getElementById('savePasswordBtn');
@@ -230,49 +253,24 @@
 
             if(!newPass) { alert("कृपया नवीन पासवर्ड टाका."); return; }
 
-            btn.disabled = true;
-            btn.textContent = "सेव्ह होत आहे...";
+            btn.disabled = true; btn.textContent = "सेव्ह होत आहे...";
 
             fetch(SCRIPT_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    action: 'resetPassword',
-                    controllingId: loggedInUser.username,
-                    targetUserId: targetUser,
-                    newPassword: newPass
-                })
-            })
-            .then(res => res.json())
-            .then(res => {
-                btn.disabled = false;
-                btn.textContent = "सेव्ह करा";
-                closeModal();
+                body: JSON.stringify({ action: 'resetPassword', controllingId: loggedInUser.username, targetUserId: targetUser, newPassword: newPass })
+            }).then(res => res.json()).then(res => {
+                btn.disabled = false; btn.textContent = "सेव्ह करा";
+                closeModal('passwordModal');
                 
-                msgBox.style.display = "block";
-                msgBox.style.padding = "15px";
-                msgBox.style.borderRadius = "6px";
-                msgBox.style.marginBottom = "20px";
-                msgBox.style.textAlign = "center";
-                msgBox.style.fontWeight = "bold";
-
+                msgBox.style.display = "block"; msgBox.style.padding = "15px"; msgBox.style.borderRadius = "6px"; msgBox.style.marginBottom = "20px"; msgBox.style.textAlign = "center"; msgBox.style.fontWeight = "bold";
                 if(res.success) {
-                    msgBox.style.backgroundColor = "#dcfce7";
-                    msgBox.style.color = "#166534";
-                    msgBox.style.border = "1px solid #bbf7d0";
-                    msgBox.textContent = "✅ " + res.message;
+                    msgBox.style.backgroundColor = "#dcfce7"; msgBox.style.color = "#166534"; msgBox.style.border = "1px solid #bbf7d0"; msgBox.textContent = "✅ " + res.message;
                 } else {
-                    msgBox.style.backgroundColor = "#fee2e2";
-                    msgBox.style.color = "#991b1b";
-                    msgBox.style.border = "1px solid #fecaca";
-                    msgBox.textContent = "❌ त्रुटी: " + res.message;
+                    msgBox.style.backgroundColor = "#fee2e2"; msgBox.style.color = "#991b1b"; msgBox.style.border = "1px solid #fecaca"; msgBox.textContent = "❌ त्रुटी: " + res.message;
                 }
-                
                 setTimeout(() => { msgBox.style.display = "none"; }, 6000);
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.textContent = "सेव्ह करा";
-                alert("नेटवर्क त्रुटी.");
+            }).catch(err => {
+                btn.disabled = false; btn.textContent = "सेव्ह करा"; alert("नेटवर्क त्रुटी.");
             });
         }
     </script>

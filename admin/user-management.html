@@ -126,6 +126,16 @@
     <!-- फक्त user-management.html मधील हा भाग रिप्लेस करा -->
 
 <script>
+
+    <script>
+    // ही लिंक तुमच्या Google Apps Script च्या 'Deploy' वरून मिळालेल्या वेब ॲप URL सह अपडेट करा
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec"; 
+    let loggedInUser = JSON.parse(sessionStorage.getItem('mahakhat_user'));
+    let isViewOnly = (loggedInUser && loggedInUser.access.userManagement === 'ViewOnly');
+    
+    // ... तुमचे बाकीचे फंक्शन्स (renderTable, openEditModal इ.)
+
+    
     // 1. टेबलमध्ये बटण रेंडर करताना केलेले बदल
     function renderTable(users) {
         const tbody = document.querySelector('#usersTable tbody');
@@ -233,4 +243,20 @@
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">नेटवर्क त्रुटी.</td></tr>';
     });
 }
+function showMessage(isSuccess, text) {
+    const msgBox = document.getElementById('msgBox');
+    msgBox.style.display = "block";
+    msgBox.style.padding = "15px";
+    msgBox.style.borderRadius = "6px";
+    msgBox.style.marginBottom = "20px";
+    msgBox.style.textAlign = "center";
+    msgBox.style.fontWeight = "bold";
+    msgBox.style.backgroundColor = isSuccess ? "#dcfce7" : "#fee2e2";
+    msgBox.style.color = isSuccess ? "#166534" : "#991b1b";
+    msgBox.textContent = (isSuccess ? "✅ " : "❌ ") + text;
+    
+    setTimeout(() => { msgBox.style.display = "none"; }, 5000);
+    loadUsers(); // यादी अपडेट करण्यासाठी
+}
+    
 </script>

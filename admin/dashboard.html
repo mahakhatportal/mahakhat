@@ -4,124 +4,271 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MahaKhat - राज्यस्तरीय मुख्य नियंत्रण कक्ष</title>
+    
     <link rel="stylesheet" href="../css/style.css">
+    
     <style>
-        .dashboard-container { max-width: 1200px; margin: 0 auto; padding-bottom: 50px; }
-        .officer-profile-bar { background: var(--white); border-left: 6px solid var(--primary-color); padding: 20px 25px; border-radius: var(--border-radius); margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); }
-        .officer-name { font-size: 18px; font-weight: 700; color: var(--primary-color); }
-        .officer-rank-badge { display: inline-block; background-color: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 50px; font-size: 13px; font-weight: 700; }
-        .logout-btn { background: #dc2626; padding: 10px 20px; font-size: 14px; color: white; border: none; cursor: pointer; }
+        /* डॅशボードचा अत्याधुनिक प्रशासकीय लेआउट */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
         
-        /* अत्यंत महत्त्वाचे: हे सेक्शन डीफॉल्ट लपवलेले असतील */
-        .dashboard-section { display: none; margin-bottom: 35px; }
-        .panel-section-title { font-size: 18px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; }
-        .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .panel-card { background: var(--white); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        /* युझर प्रोफाइल आणि पदमानाचा विशेष बार */
+        .officer-profile-bar {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-left: 6px solid var(--primary-color);
+            padding: 20px 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+        }
+        .officer-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .officer-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .officer-rank-badge {
+            display: inline-block;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            width: fit-content;
+        }
+        .logout-btn {
+            background: #dc2626;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .logout-btn:hover { background: #b91c1c; }
+
+        /* मुख्य कॅटेगरी सेशन्स */
+        .panel-section {
+            margin-bottom: 35px;
+        }
+        .panel-section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         
-        .action-btn { width: 100%; text-decoration: none; padding: 10px; font-size: 14px; text-align: center; font-weight: bold; border-radius: 6px; display: block; margin-top: 15px; }
-        .btn-blue { background-color: var(--accent-color); color: white; }
-        .btn-green { background-color: var(--secondary-color); color: white; }
-        .btn-view { background-color: #f59e0b; color: white; }
+        /* कार्ड्स ग्रिड रचना */
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .panel-card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .panel-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: var(--card-shadow);
+            transform: translateY(-2px);
+        }
+        
+        .card-meta h3 {
+            font-size: 17px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .card-meta p {
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        
+        /* स्टेटस टॅग्ज */
+        .status-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .tag-active { background-color: #dcfce7; color: #15803d; }
+        .tag-locked { background-color: #f1f5f9; color: #64748b; }
+        
+        /* बटणांचे रंग */
+        .action-btn { width: 100%; text-decoration: none; padding: 10px; font-size: 14px; text-align: center; }
+        .btn-blue { background-color: var(--accent-color); }
+        .btn-blue:hover { background-color: var(--primary-color); }
+        .btn-green { background-color: var(--secondary-color); }
+        .btn-green:hover { background-color: #1b5e20; }
+        .btn-lock { background-color: #94a3b8; cursor: not-allowed; }
+        .btn-lock:hover { background-color: #94a3b8; }
+
+        @media(max-width: 768px) {
+            .officer-profile-bar { flex-direction: column; gap: 15px; text-align: center; align-items: center; }
+            .officer-details { align-items: center; }
+            .panel-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>महाखत (MahaKhat) - राज्यस्तरीय संनियंत्रण कक्ष</h1>
-        <p>कृषी विभाग, महाराष्ट्र शासन</p>
+        <h1>महाखत (MahaKhat) - राज्यस्तरीय सनियंत्रण कक्ष</h1>
+        <p style="opacity: 0.9; margin-top: 5px;">कृषी विभाग, महाराष्ट्र शासन</p>
     </header>
 
     <div class="dashboard-container">
+        
         <div class="officer-profile-bar">
             <div class="officer-details">
-                <span id="officerName" class="officer-name">लोड होत आहे...</span><br>
-                <span id="officerRank" class="officer-rank-badge">---</span>
+                <span id="officerName" class="officer-name">अधिकारी माहिती लोड होत आहे...</span>
+                <span id="officerRank" class="officer-rank-badge">पदभार: तपासत आहे...</span>
             </div>
-            <button class="logout-btn" onclick="logout()">लॉगआउट</button>
+            <button class="btn logout-btn" onclick="logout()">प्रणाली सुरक्षित बंद करा (Logout)</button>
         </div>
 
-        <!-- सेक्शन १: सार्वजनिक पोर्टल -->
-        <div id="sec-public" class="dashboard-section">
-            <div class="panel-section-title">🌐 सार्वजनिक संपर्क पोर्टल</div>
-            <div class="panel-grid">
+        <div class="panel-section">
+            <div class="panel-section-title">🌐 सार्वजनिक संपर्क आणि शेतकरी डॅशबोर्ड</div>
+            <div class="panel-grid" style="grid-template-columns: 1fr;">
                 <div class="panel-card" style="border-top: 4px solid var(--accent-color);">
-                    <h3>सार्वजनिक खत उपलब्धता</h3>
-                    <a href="../index.html" target="_blank" class="action-btn btn-blue">पोर्टल उघडा</a>
+                    <span class="status-tag tag-active">सुरू आहे (Live)</span>
+                    <div class="card-meta">
+                        <h3>MahaKhat सार्वजनिक खत उपलब्धता पोर्टल</h3>
+                        <p>शेतकरी आणि सर्वसामान्य जनतेसाठी जिल्ह्यातील खतांचा थेट साठा (Live Stock) पाहण्याचे अधिकृत मुख्य वेब पेज उघडा.</p>
+                    </div>
+                    <a href="../index.html" target="_blank" class="btn action-btn btn-blue">सार्वजनिक पोर्टल उघडा ↗</a>
                 </div>
             </div>
         </div>
 
-        <!-- सेक्शन २: डेटा एंट्री -->
-        <div id="sec-dataEntry" class="dashboard-section">
-            <div class="panel-section-title">📥 दैनिक साठा अद्यावतीकरण (Data Entry)</div>
+        <div class="panel-section">
+            <div class="panel-section-title">📥 दैनिक साठा अद्यावतीकरण नियंत्रण सेल (Data Entry Cell)</div>
             <div class="panel-grid">
+                
                 <div class="panel-card" style="border-top: 4px solid var(--secondary-color);">
-                    <h3>किरकोळ साठा (Retailer)</h3>
-                    <a href="forms/retailer-stock.html" class="action-btn btn-green dyn-link">डेटा अपलोड करा</a>
+                    <span class="status-tag tag-active">सुरू आहे</span>
+                    <div class="card-meta">
+                        <h3>१. किरकोळ साठा (Retailer Stock Entry)</h3>
+                        <p>iFMS पोर्टलवरून प्राप्त झालेली 'किरकोळ खत साठा' (.CSV) फाईल सुरक्षितपणे सिस्टीममध्ये अपडेट करा.</p>
+                    </div>
+                    <a href="forms/retailer-stock.html" class="btn action-btn btn-green">डेटा अपलोड करा</a>
                 </div>
+
                 <div class="panel-card" style="border-top: 4px solid var(--secondary-color);">
-                    <h3>घाऊक साठा (Wholesaler)</h3>
-                    <a href="forms/wholesaler-stock.html" class="action-btn btn-green dyn-link">डेटा अपलोड करा</a>
+                    <span class="status-tag tag-active">सुरू आहे</span>
+                    <div class="card-meta">
+                        <h3>२. घाऊक साठा (Wholesaler Stock Entry)</h3>
+                        <p>iFMS पोर्टलवरून प्राप्त झालेली 'घाऊक विक्रेता खत साठा' (.CSV) फाईल जिल्हावार अद्ययावत करा.</p>
+                    </div>
+                    <a href="forms/wholesaler-stock.html" class="btn action-btn btn-green">डेटा अपलोड करा</a>
                 </div>
+
+                <div class="panel-card" style="border-top: 1px solid var(--border-color);">
+                    <span class="status-tag tag-locked">टप्पा २ (View Only)</span>
+                    <div class="card-meta">
+                        <h3>३. संरक्षित साठा (Buffer Stock Control)</h3>
+                        <p>मा. जिल्हाधिकारी महोदयांच्या आदेशानुसार राखीव (Buffer) ठेवलेल्या खत साठ्याचे आणि मुदतीचे व्यवस्थापन करणे.</p>
+                    </div>
+                    <button class="btn action-btn btn-lock" disabled>🔒 पुढील टप्प्यात उपलब्ध</button>
+                </div>
+
+                <div class="panel-card" style="border-top: 1px solid var(--border-color);">
+                    <span class="status-tag tag-locked">टप्पा २ (View Only)</span>
+                    <div class="card-meta">
+                        <h3>४. बंद/निलंबित दुकाने (Defunct Shops)</h3>
+                        <p>ज्या केंद्रांचे परवाने निलंबित अथवा रद्द आहेत, त्यांचा साठा सार्वजनिक पोर्टलवरून तात्पुरता ब्लॉक करणे.</p>
+                    </div>
+                    <button class="btn action-btn btn-lock" disabled>🔒 पुढील टप्प्यात उपलब्ध</button>
+                </div>
+
             </div>
         </div>
 
-        <!-- सेक्शन ३: रिपोर्ट -->
-        <div id="sec-report" class="dashboard-section">
-            <div class="panel-section-title">📊 अहवाल व संनियंत्रण</div>
-            <div class="panel-grid">
+        <div class="panel-section">
+            <div class="panel-section-title">📊 उच्च पदस्थ अधिकारी संनियंत्रण कक्ष (Strategic Review)</div>
+            <div class="panel-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));">
+                
                 <div class="panel-card" style="border-top: 4px solid var(--primary-color);">
-                    <h3>जिल्हास्तरीय संकलित अहवाल</h3>
-                    <a href="#" class="action-btn btn-blue">अहवाल पहा</a>
+                    <span class="status-tag tag-locked">टप्पा २</span>
+                    <div class="card-meta">
+                        <h3>📈 राज्य व जिल्हास्तरीय संकलित अहवाल (Analytical Reports)</h3>
+                        <p>प्रधान सचिव, कृषी आयुक्त आणि विभागीय संचालक स्तरावरील उच्च अधिकाऱ्यांसाठी संपूर्ण राज्यातील सर्व जिल्ह्यांचा तुलनात्मक आणि संकलित साठा अहवाल एकाच स्क्रीनवर पाहण्याची धोरणात्मक सुविधा.</p>
+                    </div>
+                    <button class="btn action-btn btn-lock" disabled>🔒 उच्चस्तरीय मंजुरी प्रलंबित (View Only)</button>
+                </div>
+
+                <div class="panel-card" style="border-top: 4px solid var(--primary-color);">
+                    <span class="status-tag tag-locked">टप्पा २</span>
+                    <div class="card-meta">
+                        <h3>📋 विभागवार साठा वाटप आणि आवक ट्रॅकिंग</h3>
+                        <p>रेल्वे रेक (Rake) मधून विविध जिल्ह्यांना होणाऱ्या खत पुरवठ्याचे आणि प्रत्यक्ष वाटपाचे वरिष्ठ स्तरावरून संनियंत्रण.</p>
+                    </div>
+                    <button class="btn action-btn btn-lock" disabled>🔒 उच्चस्तरीय मंजुरी प्रलंबित (View Only)</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="panel-section-title">👥 अधिनिस्त अधिकारी व परवानग्या व्यवस्थापन (User ID Matrix)</div>
+            <div class="panel-grid" style="grid-template-columns: 1fr;">
+                <div class="panel-card" style="border-top: 1px solid var(--border-color);">
+                    <span class="status-tag tag-locked">टप्पा २</span>
+                    <div class="card-meta">
+                        <h3>🔑 पदानुक्रम युझर मॅनेजमेंट (Hierarchical User ID Control)</h3>
+                        <p>उच्च अधिकाऱ्यांना त्यांच्या अखत्यारीत असलेल्या अधिनिस्त जिल्हा आणि तालुका अधिकाऱ्यांचे लॉगिन पासवर्ड, रोल बेस परवानग्या (Access Control Matrix) नियंत्रित आणि अद्ययावत करण्याची विशेष प्रशासकीय सुविधा.</p>
+                    </div>
+                    <button class="btn action-btn btn-lock" disabled>🔒 पुढील टप्प्यात उपलब्ध (View Only)</button>
                 </div>
             </div>
         </div>
 
-        <!-- सेक्शन ४: युझर मॅनेजमेंट -->
-        <div id="sec-userMgmt" class="dashboard-section">
-            <div class="panel-section-title">👥 अधिनिस्त अधिकारी नियंत्रण (Hierarchical User ID)</div>
-            <div class="panel-grid">
-                <div class="panel-card" style="border-top: 4px solid #8b5cf6;">
-                    <h3>पदानुक्रम युझर मॅनेजमेंट</h3>
-                    <a href="user-management.html" id="userMgmtBtn" class="action-btn btn-blue">नियंत्रण पॅनेल उघडा</a>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // लॉगिन सेशन तपासणे
             const sessionData = sessionStorage.getItem('mahakhat_user');
-            if (!sessionData) { window.location.href = "login.html"; return; }
-            
-            const userData = JSON.parse(sessionData);
-            const access = userData.access; // हा 'access' ऑब्जेक्ट तुमच्या login फंक्शनमधून येतोय
-            
-            document.getElementById('officerName').textContent = "अधिकारी: " + userData.name;
-            document.getElementById('officerRank').textContent = "पद: " + userData.designation + " | कार्यक्षेत्र: " + userData.district;
-
-            // लॉजिकल कंट्रोल: ज्याचा ॲक्सेस YES किंवा ViewOnly आहे, त्याचे सेक्शन शो करा
-            if (access.publicPortal !== "NO") {
-                document.getElementById('sec-public').style.display = "block";
+            if (!sessionData) {
+                alert("सुरक्षा प्रोटोकॉलनुसार कृपया पुन्हा लॉगिन करा.");
+                window.location.href = "login.html"; 
+                return;
             }
             
-            if (access.dataEntry !== "NO") {
-                document.getElementById('sec-dataEntry').style.display = "block";
-                if (access.dataEntry === "ViewOnly") {
-                    document.querySelectorAll('.dyn-link').forEach(btn => {
-                        btn.textContent = "केवळ पाहण्यासाठी (View Only)";
-                        btn.classList.replace('btn-green', 'btn-view');
-                    });
-                }
-            }
+            const user = JSON.parse(sessionData);
             
-            if (access.stockReport !== "NO") {
-                document.getElementById('sec-report').style.display = "block";
-            }
+            // उच्च पदस्थ अधिकाऱ्यांचे नाव आणि हुद्दा गतिमान पद्धतीने सेट करणे
+            document.getElementById('officerName').textContent = "अधिकारी: " + (user.name || user.username);
             
-            if (access.userManagement !== "NO") {
-                document.getElementById('sec-userMgmt').style.display = "block";
-            }
+            let rankText = (user.designation || "कृषी अधिकारी") + " | कार्यक्षेत्र: " + (user.district || user.division || "महाराष्ट्र राज्य");
+            document.getElementById('officerRank').textContent = "प्रशासकीय पदभार: " + rankText;
         });
 
         function logout() {

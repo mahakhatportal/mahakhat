@@ -205,4 +205,32 @@
             showMessage(res.success, res.message);
         });
     }
+    function loadUsers() {
+    const tbody = document.querySelector('#usersTable tbody');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">डेटा लोड होत आहे...</td></tr>';
+    
+    // १. आपण काय डेटा पाठवत आहोत ते तपासण्यासाठी हा कंसोल लॉग
+    const payload = { action: 'fetchUsers', controllingId: loggedInUser.username };
+    console.log("सर्वरला पाठवलेला डेटा (Payload):", payload); 
+
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+        // २. सर्व्हरकडून काय रिस्पॉन्स आला ते तपासण्यासाठी
+        console.log("सर्व्हरकडून आलेला रिस्पॉन्स:", res); 
+        
+        if(res.success) {
+            renderTable(res.data);
+        } else {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${res.message}</td></tr>`;
+        }
+    })
+    .catch(err => {
+        console.error("Fetch Error:", err); // ३. नेटवर्किंग एरर असल्यास
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">नेटवर्क त्रुटी.</td></tr>';
+    });
+}
 </script>

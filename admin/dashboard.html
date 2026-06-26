@@ -3,101 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MahaKhat - ॲडमिन डॅशबोर्ड</title>
+    <title>MahaKhat - मुख्य नियंत्रण कक्ष (Dashboard)</title>
     
     <link rel="stylesheet" href="../css/style.css">
     
     <style>
-        /* डॅशबोर्डच्या कार्ड्ससाठी (Grid) थोडी अतिरिक्त रचना */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 25px;
-        }
-        .dashboard-card {
-            background: var(--white);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-            box-shadow: var(--card-shadow);
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--secondary-color);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        .dashboard-card h3 {
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-        .card-desc {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            font-size: 14px;
+        /* डॅशबोर्डला अधिकृत आणि भव्य प्रशासकीय लुक देण्यासाठी अंतर्गत रचना */
+        .dashboard-container {
+            max-width: 1100px;
+            margin: 0 auto;
         }
         .user-info-bar {
-            background-color: #e2e8f0;
-            padding: 15px 20px;
+            background-color: #f1f5f9;
+            padding: 15px 25px;
             border-radius: var(--border-radius);
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 600;
+            border-left: 5px solid var(--primary-color);
+            border-right: 1px solid var(--border-color);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
         .logout-btn {
-            background-color: #dc2626; /* लाल रंग */
-            padding: 8px 16px;
+            background: #dc2626;
+            padding: 8px 18px;
+            font-size: 14px;
         }
-        .logout-btn:hover { background-color: #b91c1c; }
-        .full-width-btn { width: 100%; text-decoration: none; }
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+        
+        /* सर्व विभागांची सुटसुटीत रचना (Full Width Rows) */
+        .section-title {
+            margin: 25px 0 15px 0;
+            font-size: 18px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        .menu-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .menu-card {
+            background: var(--white);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+        
+        .menu-card:hover {
+            border-color: var(--secondary-color);
+            box-shadow: var(--card-shadow);
+            transform: translateY(-2px);
+        }
+        
+        .menu-details h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        
+        .menu-details p {
+            color: var(--text-muted);
+            font-size: 13.5px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .card-btn {
+            width: 100%;
+            text-decoration: none;
+            padding: 10px;
+            font-size: 15px;
+        }
+        
+        /* लिंक बटण सारखे दिसण्यासाठी */
+        .btn-blue { background-color: var(--accent-color); }
+        .btn-blue:hover { background-color: var(--primary-color); }
+        .btn-green { background-color: var(--secondary-color); }
+        .btn-green:hover { background-color: #1b5e20; }
+        .btn-gray { background-color: #64748b; }
+        .btn-gray:hover { background-color: #475569; }
+        
+        @media(max-width: 768px) {
+            .user-info-bar { flex-direction: column; gap: 10px; text-align: center; }
+            .menu-row { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>महाखत (MahaKhat) - नियंत्रण कक्ष</h1>
-        <p style="opacity: 0.9; margin-top: 5px;">जिल्हा कृषी विभाग, वाशिम</p>
+        <h1>महाखत (MahaKhat) - मुख्य नियंत्रण कक्ष</h1>
+        <p style="opacity: 0.9; margin-top: 5px;">जिल्हा कृषी Inputs संनियंत्रण समिती, वाशिम</p>
     </header>
 
-    <div class="container" style="max-width: 1000px; margin: 0 auto;">
+    <div class="dashboard-container">
         
         <div class="user-info-bar">
-            <span id="welcomeMsg">लोड होत आहे...</span>
-            <button class="btn logout-btn" onclick="logout()">लॉगआउट करा</button>
+            <span id="welcomeMsg">प्रशासकीय माहिती लोड होत आहे...</span>
+            <button class="btn logout-btn" onclick="logout()">लॉगआउट (प्रणाली बंद करा)</button>
         </div>
 
-        <h2>डेटा अद्ययावतीकरण प्रणाली</h2>
-        
-        <div class="dashboard-grid">
-            
-            <div class="dashboard-card">
-                <h3>१. किरकोळ (Retailer) साठा</h3>
-                <p class="card-desc">किरकोळ विक्रेत्यांचा खत साठा एक्सेल/CSV द्वारे अपडेट करा.</p>
-                <a href="forms/retailer-stock.html" class="btn full-width-btn">अपलोड करा</a>
+        <div class="section-title">📢 सार्वजनिक आणि शेतकरी डॅशबोर्ड</div>
+        <div class="menu-row">
+            <div class="menu-card" style="border-top: 4px solid var(--accent-color);">
+                <div class="menu-details">
+                    <h3>🌐 सार्वजनिक खत उपलब्धता पोर्टल</h3>
+                    <p>शेतकऱ्यांसाठी लाइव्ह खत साठा पाहण्याचे मुख्य ब्लॉक/वेबसाइट पेज उघडा.</p>
+                </div>
+                <a href="../../index.html" target="_blank" class="btn card-btn btn-blue">पोर्टल उघडा ↗</a>
             </div>
-
-            <div class="dashboard-card">
-                <h3>२. घाऊक (Wholesaler) साठा</h3>
-                <p class="card-desc">घाऊक विक्रेत्यांचा खत साठा एक्सेल/CSV द्वारे अपडेट करा.</p>
-                <a href="forms/wholesaler-stock.html" class="btn full-width-btn">अपलोड करा</a>
-            </div>
-            
-            <div class="dashboard-card" style="border-style: dashed; background-color: #f8fafc;">
-                <h3 style="color: var(--text-muted);">३. संरक्षित (Buffer) साठा</h3>
-                <p class="card-desc">बफर स्टॉकची माहिती जोडणे</p>
-                <button class="btn full-width-btn" disabled>लवकरच येत आहे</button>
-            </div>
-
         </div>
+
+        <div class="section-title">📥 दैनिक खत साठा अद्ययावतीकरण (Data Entry)</div>
+        <div class="menu-row">
+            <div class="menu-card" style="border-top: 4px solid var(--secondary-color);">
+                <div class="menu-details">
+                    <h3>१. किरकोळ साठा (Retailer Stock)</h3>
+                    <p>iFMS पोर्टलवरून डाऊनलोड केलेली किरकोळ विक्रेत्यांची .CSV/एक्सेल फाईल थेट अपलोड करा.</p>
+                </div>
+                <a href="forms/retailer-stock.html" class="btn card-btn btn-green">किरकोळ फाईल अपलोड करा</a>
+            </div>
+
+            <div class="menu-card" style="border-top: 4px solid var(--secondary-color);">
+                <div class="menu-details">
+                    <h3>२. घाऊक साठा (Wholesaler Stock)</h3>
+                    <p>iFMS पोर्टलवरून डाऊनलोड केलेली घाऊक विक्रेत्यांची (Wholesaler) .CSV फाईल येथे अपडेट करा.</p>
+                </div>
+                <a href="forms/wholesaler-stock.html" class="btn card-btn btn-green">घाऊक फाईल अपलोड करा</a>
+            </div>
+        </div>
+
+        <div class="section-title">⚙️ प्रशासकीय नियंत्रण आणि धोरणात्मक साठा (पुढील टप्पे)</div>
+        <div class="menu-row">
+            <div class="menu-card">
+                <div class="menu-details">
+                    <h3>३. संरक्षित साठा व्यवस्थापन (Buffer Stock)</h3>
+                    <p>जिल्हा प्रशासनाने राखीव ठेवलेल्या खत साठ्याची (Buffer) नोंद आणि मुदत व्यवस्थापन करणे.</p>
+                </div>
+                <button class="btn card-btn btn-gray" disabled>🔒 पुढील टप्प्यात उपलब्ध होईल</button>
+            </div>
+
+            <div class="menu-card">
+                <div class="menu-details">
+                    <h3>४. बंद दुकाने नियंत्रण (Defunct Shops)</h3>
+                    <p>ज्या परवानाधारकांची दुकाने बंद किंवा निलंबित आहेत, अशा केंद्रांची यादी व्यवस्थापित करा.</p>
+                </div>
+                <button class="btn card-btn btn-gray" disabled>🔒 पुढील टप्प्यात उपलब्ध होईल</button>
+            </div>
+
+            <div class="menu-card">
+                <div class="menu-details">
+                    <h3>५. युझर आणि परवानग्या (User Management)</h3>
+                    <p>जिल्ह्यातील विविध लॉगिन युझर्स, पासवर्ड आणि त्यांचे अधिकार (Access Control) व्यवस्थापित करा.</p>
+                </div>
+                <button class="btn card-btn btn-gray" disabled>🔒 पुढील टप्प्यात उपलब्ध होईल</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // लॉगिन पडताळणी
             const sessionData = sessionStorage.getItem('mahakhat_user');
             if (!sessionData) {
                 alert("सुरक्षा कारणास्तव कृपया पुन्हा लॉगिन करा.");
@@ -105,9 +186,8 @@
                 return;
             }
             
-            // युझरचे नाव आणि जिल्हा दाखवणे
             const user = JSON.parse(sessionData);
-            document.getElementById('welcomeMsg').textContent = "स्वागत आहे, " + (user.name || user.username) + " (" + user.district + ")";
+            document.getElementById('welcomeMsg').textContent = "अधिकारी: " + (user.name || user.username) + " | पद: " + (user.designation || "कृषी अधिकारी") + " (" + user.district + ")";
         });
 
         function logout() {

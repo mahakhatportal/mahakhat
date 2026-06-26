@@ -174,9 +174,8 @@
             const access = user.access; // गुगल स्क्रिप्टकडून आलेले YES / NO / ViewOnly
             
             // २. अधिकारी प्रोफाइल सेट करणे
-            document.getElementById('officerName').textContent = "अधिकारी: " + (user.name || user.username);
-            let rankText = (user.designation || "कृषी अधिकारी") + " | कार्यक्षेत्र: " + (user.district || user.division || "महाराष्ट्र राज्य");
-            document.getElementById('officerRank').textContent = "प्रशासकीय पदभार: " + rankText;
+            document.getElementById('officerName').textContent = user.name;
+document.getElementById('officerRank').textContent = user.designation + " | " + user.district;
 
             // ==============================================================
             // ३. ॲक्सेस कंट्रोल लॉजिक (गुगल स्क्रिप्टशी सुसंगत)

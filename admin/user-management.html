@@ -123,156 +123,86 @@
         </div>
     </div>
 
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec";
-        let loggedInUser = null;
-        let isViewOnly = false;
+    <!-- फक्त user-management.html मधील हा भाग रिप्लेस करा -->
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const sessionData = sessionStorage.getItem('mahakhat_user');
-            if (!sessionData) { window.location.href = "login.html"; return; }
+<script>
+    // 1. टेबलमध्ये बटण रेंडर करताना केलेले बदल
+    function renderTable(users) {
+        const tbody = document.querySelector('#usersTable tbody');
+        tbody.innerHTML = '';
+        if(users.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">कोणतेही अधिकारी नोंदणीकृत नाहीत.</td></tr>'; return; }
+
+        users.forEach(u => {
+            const tr = document.createElement('tr');
             
-            loggedInUser = JSON.parse(sessionData);
+            // फक्त 'एडिट प्रोफाईल' बटण दिले आहे (पासवर्ड बटण काढले आहे)
+            let editBtn = isViewOnly ? '' : `<button class="btn-action" onclick="openEditModal('${u.userId}', '${u.designation}', '${u.name}', '${u.mobile}', '${u.email}')">एडिट प्रोफाईल</button>`;
+            let contactBtn = `<button class="btn-contact" onclick="openContactModal('${u.name}', '${u.designation}', '${u.mobile}', '${u.email}')">संपर्क</button>`;
             
-            if (loggedInUser.access.userManagement === 'NO') {
-                window.location.href = "dashboard.html"; return;
-            }
-            if (loggedInUser.access.userManagement === 'ViewOnly') {
-                isViewOnly = true;
-            }
-            loadUsers();
+            tr.innerHTML = `
+                <td><span class="badge-id">${u.userId}</span></td>
+                <td><strong>${u.name}</strong></td>
+                <td><span class="badge-designation">${u.designation}</span></td>
+                <td>${u.district}</td>
+                <td>${u.mobile}</td>
+                <td>${editBtn} ${contactBtn}</td>
+            `;
+            tbody.appendChild(tr);
         });
+    }
 
-        function filterTable() {
-            const input = document.getElementById("searchInput").value.toUpperCase();
-            const trs = document.querySelectorAll("#usersTable tbody tr");
-            trs.forEach(tr => {
-                if (tr.querySelector("td") && tr.querySelector("td").colSpan !== 6) { 
-                    tr.style.display = tr.textContent.toUpperCase().includes(input) ? "" : "none";
-                }
-            });
-        }
+    // 2. एडिट मोडल उघडण्याचे फंक्शन
+    function openEditModal(userId, designation, name, mobile, email) {
+        document.getElementById('editUserId').value = userId;
+        document.getElementById('editDesignation').value = designation;
+        document.getElementById('editName').value = name === 'undefined' ? '' : name;
+        document.getElementById('editMobile').value = mobile === 'undefined' ? '' : mobile;
+        document.getElementById('editEmail').value = email === 'undefined' ? '' : email;
+        document.getElementById('editModal').style.display = "flex";
+    }
 
-        function loadUsers() {
-            const tbody = document.querySelector('#usersTable tbody');
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">अधिनिस्त अधिकाऱ्यांची यादी शोधत आहे...</td></tr>';
-            
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'fetchUsers', controllingId: loggedInUser.username })
+    // 3. पासवर्ड रिसेट फंक्शन (डिफॉल्ट पासवर्डसाठी)
+    function resetPasswordDefault() {
+        if(!confirm("सावधान! या अधिकाऱ्याचा पासवर्ड डिफॉल्ट (MahaKhat@123) होईल. पुढे जायचे का?")) return;
+        
+        const targetUser = document.getElementById('editUserId').value;
+        const btn = document.getElementById('resetPassBtn');
+        btn.disabled = true; btn.textContent = "रिसेट होत आहे...";
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'resetPasswordDefault', controllingId: loggedInUser.username, targetUserId: targetUser })
+        }).then(res => res.json()).then(res => {
+            btn.disabled = false; btn.textContent = "पासवर्ड रिसेट";
+            closeModal('editModal');
+            showMessage(res.success, res.message);
+        });
+    }
+
+    // 4. प्रोफाईल सेव्ह फंक्शन (नाव, मोबाईल, ईमेल)
+    function saveProfile() {
+        const targetUser = document.getElementById('editUserId').value;
+        const newName = document.getElementById('editName').value.trim();
+        const newMobile = document.getElementById('editMobile').value.trim();
+        const newEmail = document.getElementById('editEmail').value.trim();
+        const btn = document.getElementById('saveProfileBtn');
+
+        btn.disabled = true; btn.textContent = "सेव्ह होत आहे...";
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                action: 'editProfile', 
+                controllingId: loggedInUser.username, 
+                targetUserId: targetUser, 
+                name: newName, 
+                mobile: newMobile, 
+                email: newEmail 
             })
-            .then(res => res.json())
-            .then(res => {
-                if(res.success) renderTable(res.data);
-                else tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${res.message}</td></tr>`;
-            })
-            .catch(err => {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">नेटवर्क त्रुटी. सर्व्हरशी संपर्क होऊ शकला नाही.</td></tr>';
-            });
-        }
-
-        function renderTable(users) {
-            const tbody = document.querySelector('#usersTable tbody');
-            tbody.innerHTML = '';
-            if(users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">कोणतेही अधिकारी नोंदणीकृत नाहीत.</td></tr>';
-                return;
-            }
-
-            users.forEach(u => {
-                const tr = document.createElement('tr');
-                
-                // मोबाईल नंबर नसल्यास "उपलब्ध नाही" दाखवणे
-                let mobileDisplay = u.mobile ? u.mobile : '<span style="color:#94a3b8; font-size:12px;">उपलब्ध नाही</span>';
-                
-                // बटणे तयार करणे
-                let passBtn = isViewOnly ? '' : `<button class="btn-action" onclick="openPassModal('${u.userId}', '${u.name}')">पासवर्ड</button>`;
-                let contactBtn = `<button class="btn-contact" onclick="openContactModal('${u.name}', '${u.designation}', '${u.mobile}', '${u.email}')">संपर्क करा</button>`;
-                
-                tr.innerHTML = `
-                    <td><span class="badge-id">${u.userId}</span></td>
-                    <td><strong>${u.name}</strong></td>
-                    <td><span class="badge-designation">${u.designation}</span></td>
-                    <td>${u.district}</td>
-                    <td>${mobileDisplay}</td>
-                    <td>${passBtn} ${contactBtn}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function openPassModal(userId, name) {
-            document.getElementById('targetUserId').value = userId;
-            document.getElementById('targetUserDisplay').textContent = name + " (" + userId + ")";
-            document.getElementById('newPassword').value = "";
-            document.getElementById('passwordModal').style.display = "flex";
-        }
-
-        function openContactModal(name, role, mobile, email) {
-            document.getElementById('contactNameDisplay').textContent = name;
-            document.getElementById('contactRoleDisplay').textContent = role;
-            
-            const btnCall = document.getElementById('btnCall');
-            const btnSms = document.getElementById('btnSms');
-            const btnWa = document.getElementById('btnWa');
-            const btnEmail = document.getElementById('btnEmail');
-
-            // मोबाईल नंबर फॉरमॅटिंग
-            let cleanMobile = String(mobile).replace(/\D/g, '');
-            let waMobile = cleanMobile;
-            if (waMobile.length === 10) waMobile = '91' + waMobile; // WhatsApp ला कंट्री कोड लागतो
-
-            if (cleanMobile) {
-                btnCall.href = `tel:+91${cleanMobile}`;
-                btnSms.href = `sms:+91${cleanMobile}`;
-                btnWa.href = `https://wa.me/${waMobile}`;
-                btnCall.style.display = "flex"; btnSms.style.display = "flex"; btnWa.style.display = "flex";
-            } else {
-                btnCall.style.display = "none"; btnSms.style.display = "none"; btnWa.style.display = "none";
-            }
-
-            if (email && email !== "undefined") {
-                btnEmail.href = `mailto:${email}`;
-                btnEmail.style.display = "flex";
-            } else {
-                btnEmail.style.display = "none";
-            }
-
-            document.getElementById('contactModal').style.display = "flex";
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = "none";
-        }
-
-        function saveNewPassword() {
-            const targetUser = document.getElementById('targetUserId').value;
-            const newPass = document.getElementById('newPassword').value.trim();
-            const btn = document.getElementById('savePasswordBtn');
-            const msgBox = document.getElementById('msgBox');
-
-            if(!newPass) { alert("कृपया नवीन पासवर्ड टाका."); return; }
-
-            btn.disabled = true; btn.textContent = "सेव्ह होत आहे...";
-
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'resetPassword', controllingId: loggedInUser.username, targetUserId: targetUser, newPassword: newPass })
-            }).then(res => res.json()).then(res => {
-                btn.disabled = false; btn.textContent = "सेव्ह करा";
-                closeModal('passwordModal');
-                
-                msgBox.style.display = "block"; msgBox.style.padding = "15px"; msgBox.style.borderRadius = "6px"; msgBox.style.marginBottom = "20px"; msgBox.style.textAlign = "center"; msgBox.style.fontWeight = "bold";
-                if(res.success) {
-                    msgBox.style.backgroundColor = "#dcfce7"; msgBox.style.color = "#166534"; msgBox.style.border = "1px solid #bbf7d0"; msgBox.textContent = "✅ " + res.message;
-                } else {
-                    msgBox.style.backgroundColor = "#fee2e2"; msgBox.style.color = "#991b1b"; msgBox.style.border = "1px solid #fecaca"; msgBox.textContent = "❌ त्रुटी: " + res.message;
-                }
-                setTimeout(() => { msgBox.style.display = "none"; }, 6000);
-            }).catch(err => {
-                btn.disabled = false; btn.textContent = "सेव्ह करा"; alert("नेटवर्क त्रुटी.");
-            });
-        }
-    </script>
-</body>
-</html>
+        }).then(res => res.json()).then(res => {
+            btn.disabled = false; btn.textContent = "माहिती सेव्ह करा";
+            closeModal('editModal');
+            showMessage(res.success, res.message);
+        });
+    }
+</script>

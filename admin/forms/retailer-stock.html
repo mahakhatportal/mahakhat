@@ -91,11 +91,17 @@
                 const worksheet = workbook.Sheets[firstSheetName];
                 const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                 
-                // --- नवीन सुरक्षा: फाईल 'Retailer' चीच आहे का हे पहिल्या ओळीवरून तपासणे ---
+               // --- नवीन सुरक्षा: फाईल 'Retailer' चीच आहे का हे पहिल्या ओळीवरून तपासणे ---
                 let firstRowText = (rawData[0] || []).join(" ").toLowerCase();
                 if (!firstRowText.includes("retailer")) {
                     document.getElementById('msgWindow').className = "message error-msg";
                     document.getElementById('msgWindow').textContent = "ही फाईल 'Retailer' ची नाही. कृपया योग्य फाईल तपासा आणि पुन्हा प्रयत्न करा.";
+                    
+                    // --- या ३ नवीन ओळींमुळे अपलोड बटन सक्तीने लॉक होईल आणि डेटा पुसला जाईल ---
+                    document.getElementById('uploadBtn').disabled = true; 
+                    parsedRows = []; 
+                    document.getElementById('excelFile').value = ""; 
+                    
                     return; // चुकीची फाईल इथेच अडवली जाईल
                 }
                 

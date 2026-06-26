@@ -1,1 +1,150 @@
+/* ==============================================================
+   MahaKhat - Master CSS (Official & Modern UI)
+============================================================== */
 
+/* १. मास्टर कलर पॅलेट (CSS Variables) */
+:root {
+    --primary-color: #1A365D;    /* डार्क नेव्ही ब्लू - प्रशासकीय लुकसाठी */
+    --secondary-color: #2E7D32;  /* फॉरेस्ट ग्रीन - शेती आणि खतांच्या संदर्भासाठी */
+    --accent-color: #0284C7;     /* स्काय ब्लू - बटन्सवरील होव्हर इफेक्टसाठी */
+    --bg-light: #F8FAFC;         /* अत्यंत फिकट राखाडी/निळसर - बॅकग्राउंडसाठी */
+    --text-main: #1E293B;        /* डार्क स्लेट - वाचनीयतेसाठी (काळ्या ऐवजी) */
+    --text-muted: #64748B;       /* फिकट मजकूर - दुय्यम माहितीसाठी */
+    --border-color: #E2E8F0;     /* फिकट बॉर्डर */
+    --white: #FFFFFF;
+    
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --border-radius: 8px;
+}
+
+/* २. मूळ संरचना (Base Reset) */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* ३. हेडर्स आणि टायटल्स (Headers) */
+header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #2a4365 100%);
+    color: var(--white);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 25px;
+    text-align: center;
+    border-bottom: 4px solid var(--secondary-color);
+}
+
+h1, h2, h3 {
+    color: var(--primary-color);
+}
+
+header h1 {
+    color: var(--white);
+}
+
+/* ४. कंटेनर्स आणि कार्ड्स (Cards) */
+.container, .form-container, .table-container, .filter-section {
+    background-color: var(--white);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+}
+
+/* ५. बटन्स (Buttons) */
+button, .btn {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+}
+
+button:hover, .btn:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+button:disabled {
+    background-color: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ६. फॉर्म्स आणि इनपुट्स (Forms) */
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 15px;
+    color: var(--text-main);
+    background-color: var(--white);
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* ७. टेबल्स (Tables) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th {
+    background-color: #f1f5f9;
+    color: var(--primary-color);
+    font-weight: 700;
+    text-align: left;
+    padding: 15px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+tr:hover {
+    background-color: #f0fdf4; /* हलका हिरवा होव्हर इफेक्ट */
+}
+
+/* ८. मेसेज आणि अलर्ट्स (Alerts) */
+.message { margin-top: 15px; text-align: center; font-size: 15px; font-weight: 500; padding: 10px; border-radius: 6px; }
+.success-msg { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.error-msg { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }

@@ -8,7 +8,6 @@
     <style>
         body { background-color: var(--bg-light); padding: 20px; }
         .page-container { max-width: 1100px; margin: 0 auto; }
-        
         .page-header { background: linear-gradient(135deg, var(--primary-color) 0%, #2a4365 100%); color: white; padding: 25px 30px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--secondary-color); }
         .header-titles h1 { color: white; font-size: 24px; margin-bottom: 5px; }
         .header-titles p { color: #cbd5e1; font-size: 14px; margin: 0; }
@@ -26,26 +25,26 @@
         .badge-id { background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 13px; font-weight: bold; border: 1px solid #e2e8f0; }
         .badge-designation { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 50px; font-size: 12px; font-weight: 700; display: inline-block; }
         
-        /* ॲक्शन बटन्स */
         .btn-action { background: var(--primary-color); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 5px; }
         .btn-contact { background: #f59e0b; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
 
-        /* मोडल (पॉप-अप) डिझाईन */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; overflow-y: auto; padding: 20px;}
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); margin: auto;}
         .modal-header h3 { color: var(--primary-color); font-size: 20px; margin: 0 0 15px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
         
-        /* संपर्क ग्रिड */
-        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .contact-btn { display: flex; align-items: center; justify-content: center; padding: 12px; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; font-size: 14px; text-align: center; }
-        .call-btn { background-color: #0284c7; }
-        .sms-btn { background-color: #8b5cf6; }
-        .wa-btn { background-color: #16a34a; }
-        .email-btn { background-color: #ea4335; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14.5px; box-sizing: border-box;}
+        .readonly-input { background-color: #f1f5f9; cursor: not-allowed; color: #64748b; }
         
-        .modal-body input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; margin-bottom: 20px; margin-top: 5px; }
-        .btn-cancel { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; }
-        .btn-save { background: var(--secondary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .contact-btn { display: flex; align-items: center; justify-content: center; padding: 10px; border-radius: 8px; text-decoration: none; color: white; font-weight: bold; font-size: 13px; text-align: center; }
+        .call-btn { background-color: #0284c7; } .sms-btn { background-color: #8b5cf6; } .wa-btn { background-color: #16a34a; } .email-btn { background-color: #ea4335; }
+        
+        .modal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+        .btn-cancel { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-save { background: var(--secondary-color); color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-danger { background: #dc2626; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -87,19 +86,38 @@
         </div>
     </div>
 
-    <!-- 1. Password Reset Modal -->
-    <div id="passwordModal" class="modal">
+    <!-- 1. Edit Profile Modal (हरवलेला मोडल जोडला) -->
+    <div id="editModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h3>🔑 पासवर्ड रिसेट करा</h3></div>
-            <div class="modal-body">
-                <p>अधिकारी: <strong id="targetUserDisplay"></strong></p>
-                <input type="hidden" id="targetUserId">
-                <label style="font-weight: bold; font-size: 13px; color: #64748b;">नवीन पासवर्ड एंटर करा:</label>
-                <input type="text" id="newPassword" placeholder="उदा. Washim@123" required autocomplete="off">
+            <div class="modal-header"><h3>👤 अधिकारी प्रोफाईल अपडेट</h3></div>
+            
+            <div class="form-group">
+                <label>युझर आयडी (बदलता येणार नाही)</label>
+                <input type="text" id="editUserId" class="readonly-input" readonly>
             </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="btn-cancel" style="width: auto; margin-top: 0;" onclick="closeModal('passwordModal')">रद्द करा</button>
-                <button class="btn-save" id="savePasswordBtn" onclick="saveNewPassword()">सेव्ह करा</button>
+            <div class="form-group">
+                <label>पदनाम (बदलता येणार नाही)</label>
+                <input type="text" id="editDesignation" class="readonly-input" readonly>
+            </div>
+            <div class="form-group">
+                <label>अधिकाऱ्याचे नाव</label>
+                <input type="text" id="editName">
+            </div>
+            <div class="form-group">
+                <label>संपर्क क्रमांक</label>
+                <input type="text" id="editMobile">
+            </div>
+            <div class="form-group">
+                <label>ईमेल आयडी</label>
+                <input type="email" id="editEmail">
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModal('editModal')">रद्द करा</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-danger" id="resetPassBtn" onclick="resetPasswordDefault()">पासवर्ड रिसेट</button>
+                    <button class="btn-save" id="saveProfileBtn" onclick="saveProfile()">माहिती सेव्ह करा</button>
+                </div>
             </div>
         </div>
     </div>
@@ -108,44 +126,60 @@
     <div id="contactModal" class="modal">
         <div class="modal-content">
             <div class="modal-header"><h3>📞 संपर्क साधा</h3></div>
-            <div class="modal-body">
-                <p style="text-align: center; font-size: 16px; margin: 0;"><strong id="contactNameDisplay"></strong></p>
-                <p style="text-align: center; font-size: 13px; color: #64748b; margin-top: 5px;" id="contactRoleDisplay"></p>
-                
-                <div class="contact-grid">
-                    <a href="#" id="btnCall" class="contact-btn call-btn">📞 कॉल करा</a>
-                    <a href="#" id="btnSms" class="contact-btn sms-btn">💬 SMS करा</a>
-                    <a href="#" id="btnWa" target="_blank" class="contact-btn wa-btn">🟢 WhatsApp</a>
-                    <a href="#" id="btnEmail" target="_blank" class="contact-btn email-btn">📧 Email करा</a>
-                </div>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <p style="font-size: 16px; margin: 0;"><strong id="contactNameDisplay"></strong></p>
+                <p style="font-size: 13px; color: #64748b; margin-top: 5px;" id="contactRoleDisplay"></p>
             </div>
-            <button class="btn-cancel" onclick="closeModal('contactModal')">बंद करा</button>
+            <div class="contact-grid">
+                <a href="#" id="btnCall" class="contact-btn call-btn">📞 कॉल करा</a>
+                <a href="#" id="btnSms" class="contact-btn sms-btn">💬 SMS करा</a>
+                <a href="#" id="btnWa" target="_blank" class="contact-btn wa-btn">🟢 WhatsApp</a>
+                <a href="#" id="btnEmail" target="_blank" class="contact-btn email-btn">📧 Email करा</a>
+            </div>
+            <button class="btn-cancel" style="width: 100%; margin-top: 20px;" onclick="closeModal('contactModal')">बंद करा</button>
         </div>
     </div>
 
-    <!-- फक्त user-management.html मधील हा भाग रिप्लेस करा -->
-
 <script>
-
-    <script>
-    // ही लिंक तुमच्या Google Apps Script च्या 'Deploy' वरून मिळालेल्या वेब ॲप URL सह अपडेट करा
+    // येथे तुमची डिप्लॉयमेंट URL टाका
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec"; 
-    let loggedInUser = JSON.parse(sessionStorage.getItem('mahakhat_user'));
-    let isViewOnly = (loggedInUser && loggedInUser.access.userManagement === 'ViewOnly');
     
-    // ... तुमचे बाकीचे फंक्शन्स (renderTable, openEditModal इ.)
+    let loggedInUser = null;
+    let isViewOnly = false;
 
-    
-    // 1. टेबलमध्ये बटण रेंडर करताना केलेले बदल
+    document.addEventListener('DOMContentLoaded', function() {
+        const sessionData = sessionStorage.getItem('mahakhat_user');
+        if (!sessionData) { window.location.href = "login.html"; return; }
+        loggedInUser = JSON.parse(sessionData);
+        isViewOnly = (loggedInUser.access.userManagement === 'ViewOnly');
+        loadUsers();
+    });
+
+    function loadUsers() {
+        const tbody = document.querySelector('#usersTable tbody');
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">डेटा लोड होत आहे...</td></tr>';
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'fetchUsers', controllingId: loggedInUser.username })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if(res.success) renderTable(res.data);
+            else tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${res.message}</td></tr>`;
+        })
+        .catch(err => {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">सर्व्हरशी संपर्क तुटला.</td></tr>';
+        });
+    }
+
     function renderTable(users) {
         const tbody = document.querySelector('#usersTable tbody');
         tbody.innerHTML = '';
-        if(users.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">कोणतेही अधिकारी नोंदणीकृत नाहीत.</td></tr>'; return; }
+        if(users.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">अधिकारी नोंदणीकृत नाहीत.</td></tr>'; return; }
 
         users.forEach(u => {
             const tr = document.createElement('tr');
-            
-            // फक्त 'एडिट प्रोफाईल' बटण दिले आहे (पासवर्ड बटण काढले आहे)
             let editBtn = isViewOnly ? '' : `<button class="btn-action" onclick="openEditModal('${u.userId}', '${u.designation}', '${u.name}', '${u.mobile}', '${u.email}')">एडिट प्रोफाईल</button>`;
             let contactBtn = `<button class="btn-contact" onclick="openContactModal('${u.name}', '${u.designation}', '${u.mobile}', '${u.email}')">संपर्क</button>`;
             
@@ -154,24 +188,76 @@
                 <td><strong>${u.name}</strong></td>
                 <td><span class="badge-designation">${u.designation}</span></td>
                 <td>${u.district}</td>
-                <td>${u.mobile}</td>
+                <td>${u.mobile && u.mobile !== 'undefined' ? u.mobile : '-'}</td>
                 <td>${editBtn} ${contactBtn}</td>
             `;
             tbody.appendChild(tr);
         });
     }
 
-    // 2. एडिट मोडल उघडण्याचे फंक्शन
+    // Modal Control Functions (हे आधी मिसिंग होते)
     function openEditModal(userId, designation, name, mobile, email) {
         document.getElementById('editUserId').value = userId;
         document.getElementById('editDesignation').value = designation;
-        document.getElementById('editName').value = name === 'undefined' ? '' : name;
-        document.getElementById('editMobile').value = mobile === 'undefined' ? '' : mobile;
-        document.getElementById('editEmail').value = email === 'undefined' ? '' : email;
+        document.getElementById('editName').value = (name === 'undefined' || !name) ? '' : name;
+        document.getElementById('editMobile').value = (mobile === 'undefined' || !mobile) ? '' : mobile;
+        document.getElementById('editEmail').value = (email === 'undefined' || !email) ? '' : email;
         document.getElementById('editModal').style.display = "flex";
     }
 
-    // 3. पासवर्ड रिसेट फंक्शन (डिफॉल्ट पासवर्डसाठी)
+    function openContactModal(name, role, mobile, email) {
+        document.getElementById('contactNameDisplay').textContent = name;
+        document.getElementById('contactRoleDisplay').textContent = role;
+        
+        const btnCall = document.getElementById('btnCall');
+        const btnSms = document.getElementById('btnSms');
+        const btnWa = document.getElementById('btnWa');
+        const btnEmail = document.getElementById('btnEmail');
+
+        let cleanMobile = String(mobile).replace(/\D/g, '');
+        if (cleanMobile && cleanMobile.length >= 10) {
+            let waMobile = cleanMobile.length === 10 ? '91' + cleanMobile : cleanMobile;
+            btnCall.href = `tel:+91${cleanMobile}`;
+            btnSms.href = `sms:+91${cleanMobile}`;
+            btnWa.href = `https://wa.me/${waMobile}`;
+            btnCall.style.display = "flex"; btnSms.style.display = "flex"; btnWa.style.display = "flex";
+        } else {
+            btnCall.style.display = "none"; btnSms.style.display = "none"; btnWa.style.display = "none";
+        }
+
+        if (email && email !== "undefined" && email.trim() !== "") {
+            btnEmail.href = `mailto:${email}`;
+            btnEmail.style.display = "flex";
+        } else {
+            btnEmail.style.display = "none";
+        }
+
+        document.getElementById('contactModal').style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    function saveProfile() {
+        const targetUser = document.getElementById('editUserId').value;
+        const newName = document.getElementById('editName').value.trim();
+        const newMobile = document.getElementById('editMobile').value.trim();
+        const newEmail = document.getElementById('editEmail').value.trim();
+        const btn = document.getElementById('saveProfileBtn');
+
+        btn.disabled = true; btn.textContent = "सेव्ह होत आहे...";
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'editProfile', controllingId: loggedInUser.username, targetUserId: targetUser, name: newName, mobile: newMobile, email: newEmail })
+        }).then(res => res.json()).then(res => {
+            btn.disabled = false; btn.textContent = "माहिती सेव्ह करा";
+            closeModal('editModal');
+            showMessage(res.success, res.message);
+        });
+    }
+
     function resetPasswordDefault() {
         if(!confirm("सावधान! या अधिकाऱ्याचा पासवर्ड डिफॉल्ट (MahaKhat@123) होईल. पुढे जायचे का?")) return;
         
@@ -189,74 +275,31 @@
         });
     }
 
-    // 4. प्रोफाईल सेव्ह फंक्शन (नाव, मोबाईल, ईमेल)
-    function saveProfile() {
-        const targetUser = document.getElementById('editUserId').value;
-        const newName = document.getElementById('editName').value.trim();
-        const newMobile = document.getElementById('editMobile').value.trim();
-        const newEmail = document.getElementById('editEmail').value.trim();
-        const btn = document.getElementById('saveProfileBtn');
+    function showMessage(isSuccess, text) {
+        const msgBox = document.getElementById('msgBox');
+        msgBox.style.display = "block";
+        msgBox.style.padding = "15px";
+        msgBox.style.borderRadius = "6px";
+        msgBox.style.marginBottom = "20px";
+        msgBox.style.textAlign = "center";
+        msgBox.style.fontWeight = "bold";
+        msgBox.style.backgroundColor = isSuccess ? "#dcfce7" : "#fee2e2";
+        msgBox.style.color = isSuccess ? "#166534" : "#991b1b";
+        msgBox.textContent = (isSuccess ? "✅ " : "❌ ") + text;
+        
+        setTimeout(() => { msgBox.style.display = "none"; }, 5000);
+        loadUsers(); 
+    }
 
-        btn.disabled = true; btn.textContent = "सेव्ह होत आहे...";
-
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: 'editProfile', 
-                controllingId: loggedInUser.username, 
-                targetUserId: targetUser, 
-                name: newName, 
-                mobile: newMobile, 
-                email: newEmail 
-            })
-        }).then(res => res.json()).then(res => {
-            btn.disabled = false; btn.textContent = "माहिती सेव्ह करा";
-            closeModal('editModal');
-            showMessage(res.success, res.message);
+    function filterTable() {
+        const input = document.getElementById("searchInput").value.toUpperCase();
+        const trs = document.querySelectorAll("#usersTable tbody tr");
+        trs.forEach(tr => {
+            if (tr.querySelector("td") && tr.querySelector("td").colSpan !== 6) { 
+                tr.style.display = tr.textContent.toUpperCase().includes(input) ? "" : "none";
+            }
         });
     }
-    function loadUsers() {
-    const tbody = document.querySelector('#usersTable tbody');
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">डेटा लोड होत आहे...</td></tr>';
-    
-    // १. आपण काय डेटा पाठवत आहोत ते तपासण्यासाठी हा कंसोल लॉग
-    const payload = { action: 'fetchUsers', controllingId: loggedInUser.username };
-    console.log("सर्वरला पाठवलेला डेटा (Payload):", payload); 
-
-    fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(res => {
-        // २. सर्व्हरकडून काय रिस्पॉन्स आला ते तपासण्यासाठी
-        console.log("सर्व्हरकडून आलेला रिस्पॉन्स:", res); 
-        
-        if(res.success) {
-            renderTable(res.data);
-        } else {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">${res.message}</td></tr>`;
-        }
-    })
-    .catch(err => {
-        console.error("Fetch Error:", err); // ३. नेटवर्किंग एरर असल्यास
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">नेटवर्क त्रुटी.</td></tr>';
-    });
-}
-function showMessage(isSuccess, text) {
-    const msgBox = document.getElementById('msgBox');
-    msgBox.style.display = "block";
-    msgBox.style.padding = "15px";
-    msgBox.style.borderRadius = "6px";
-    msgBox.style.marginBottom = "20px";
-    msgBox.style.textAlign = "center";
-    msgBox.style.fontWeight = "bold";
-    msgBox.style.backgroundColor = isSuccess ? "#dcfce7" : "#fee2e2";
-    msgBox.style.color = isSuccess ? "#166534" : "#991b1b";
-    msgBox.textContent = (isSuccess ? "✅ " : "❌ ") + text;
-    
-    setTimeout(() => { msgBox.style.display = "none"; }, 5000);
-    loadUsers(); // यादी अपडेट करण्यासाठी
-}
-    
 </script>
+</body>
+</html>

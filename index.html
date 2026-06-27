@@ -212,8 +212,8 @@
 
             if (latestTime > 0) {
                 const finalDate = new Date(latestTime);
-                const strMr = finalDate.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
-                const strEn = finalDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+                const strMr = finalDate.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+                const strEn = finalDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
                 
                 document.getElementById('update-time').textContent = strMr;
                 document.getElementById('update-time-en').textContent = `Last Updated: ${strEn}`;

@@ -2,21 +2,21 @@
 <html lang="mr">
 <head>
     <!-- PWA Manifest -->
-<link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
 
-<!-- मोबाईल स्टेटस बार चा रंग -->
-<meta name="theme-color" content="#1A365D">
+    <!-- मोबाईल स्टेटस बार चा रंग -->
+    <meta name="theme-color" content="#1A365D">
 
-<!-- Apple/iOS साठी आयकॉन -->
-<link rel="apple-touch-icon" href="Icon/icon-192.png">
+    <!-- Apple/iOS साठी आयकॉन -->
+    <link rel="apple-touch-icon" href="Icon/icon-192.png">
 
-<script>
-    // सर्व्हिस वर्कर रजिस्टर करणे
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-        .then(() => console.log("PWA Service Worker Registered Successfully"));
-    }
-</script>
+    <script>
+        // सर्व्हिस वर्कर रजिस्टर करणे
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log("PWA Service Worker Registered Successfully"));
+        }
+    </script>
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -126,10 +126,13 @@
     </form>
     
     <div id="msgWindow" class="message"></div>
+
+    <!-- PWA Install Button (सुरुवातीला लपवलेले असेल, PWA रेडी झाल्यावर दिसेल) -->
+    <button id="installAppBtn" style="display: none; margin-top: 15px; background: linear-gradient(135deg, #0284C7 0%, #1E3A8A 100%);">📲 मोबाईल ॲप इन्स्टॉल करा</button>
 </div>
 
 <script>
-    // सूचना: खालील लिंकच्या जागी तुमची नवीन 'Web App URL' टाकायला विसरू नका.
+    // तुमची नवीन 'Web App URL'
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec";
 
     document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -182,6 +185,37 @@
             msgWin.className = "message error-msg";
             msgWin.textContent = "सर्व्हरशी संपर्क होऊ शकला नाही. पुन्हा प्रयत्न करा.";
             console.error("Error:", error);
+        });
+    });
+
+    // ==========================================
+    // PWA App Installation Logic
+    // ==========================================
+    let deferredPrompt;
+    const installBtn = document.getElementById('installAppBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // क्रोमचा आपोआप येणारा पॉप-अप थांबवा
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // आपले कस्टम बटण युजरला दाखवा
+        installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', () => {
+        // बटण लपवा
+        installBtn.style.display = 'none';
+        
+        // इन्स्टॉलचा पॉप-अप दाखवा
+        deferredPrompt.prompt();
+        
+        // युजरने 'Yes' केले की 'No' ते तपासा
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User installed the MahaKhat App');
+            }
+            deferredPrompt = null;
         });
     });
 </script>

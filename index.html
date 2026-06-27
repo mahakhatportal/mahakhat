@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-    <!-- PWA Manifest -->
+
+    <!-- PWA Manifest (Main Folder Absolute Path) -->
     <link rel="manifest" href="/mahakhat/manifest.json">
     <meta name="theme-color" content="#1A365D">
     <link rel="apple-touch-icon" href="/mahakhat/Icon/icon-192.png">
@@ -9,9 +10,10 @@
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/mahakhat/sw.js')
-            .then(() => console.log("PWA Registered Successfully"));
+            .then(() => console.log("Admin Connected to Main PWA"));
         }
     </script>
+    
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

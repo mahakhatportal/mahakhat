@@ -1,19 +1,15 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-    <!-- PWA Manifest (Absolute Path) -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="/mahakhat/manifest.json">
-
     <meta name="theme-color" content="#1A365D">
-
-    <!-- Apple/iOS Icon (Absolute Path) -->
     <link rel="apple-touch-icon" href="/mahakhat/Icon/icon-192.png">
 
     <script>
         if ('serviceWorker' in navigator) {
-            // Service Worker (Absolute Path)
             navigator.serviceWorker.register('/mahakhat/sw.js')
-            .then(() => console.log("PWA Registered for the entire domain"));
+            .then(() => console.log("PWA Registered Successfully"));
         }
     </script>
     

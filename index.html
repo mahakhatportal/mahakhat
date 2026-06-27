@@ -521,6 +521,123 @@
             document.getElementById('details-container').innerHTML = `<div class="error">${message}</div>`;
         }
     </script>
+
+<!-- ==============================================================
+     PWA कस्टम इन्स्टॉल पॉप-अप (मध्यभागी दिसणारे कार्ड)
+============================================================== -->
+<style>
+    /* पॉप-अप ची स्टाईल */
+    .pwa-modal-overlay {
+        display: none; /* सुरुवातीला लपवलेले असेल */
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(15, 23, 42, 0.7); /* डार्क ब्लर बॅकग्राउंड */
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    .pwa-modal-card {
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 340px;
+        text-align: center;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        animation: popIn 0.3s ease-out forwards;
+    }
+    @keyframes popIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    .pwa-icon {
+        width: 75px; height: 75px;
+        margin-bottom: 15px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .pwa-modal-card h3 {
+        color: #1A365D; margin: 0 0 10px 0; font-size: 20px;
+    }
+    .pwa-modal-card p {
+        color: #64748B; font-size: 14px; margin: 0 0 20px 0; line-height: 1.5;
+    }
+    .pwa-btn-container {
+        display: flex; gap: 12px; justify-content: center;
+    }
+    .pwa-btn-cancel {
+        background: #f1f5f9; color: #475569; border: none;
+        padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1;
+        font-size: 15px; transition: background 0.2s;
+    }
+    .pwa-btn-install {
+        background: #2E7D32; color: #ffffff; border: none;
+        padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1;
+        font-size: 15px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(46, 125, 50, 0.2);
+    }
+    .pwa-btn-cancel:hover { background: #e2e8f0; }
+    .pwa-btn-install:hover { background: #1b5e20; }
+</style>
+
+<!-- पॉप-अप चे HTML स्ट्रक्चर -->
+<div id="pwaInstallModal" class="pwa-modal-overlay">
+    <div class="pwa-modal-card">
+        <!-- तुमचा लोगो -->
+        <img src="/mahakhat/Icon/icon-192.png" alt="MahaKhat Icon" class="pwa-icon">
+        <h3>महाखत ॲप</h3>
+        <p>उत्तम अनुभव आणि जलद वापरासाठी हे पोर्टल मोबाईल ॲप म्हणून इन्स्टॉल करा.</p>
+        <div class="pwa-btn-container">
+            <button id="pwaCancelBtn" class="pwa-btn-cancel">नंतर करा</button>
+            <button id="pwaInstallConfirmBtn" class="pwa-btn-install">इन्स्टॉल करा</button>
+        </div>
+    </div>
+</div>
+
+<!-- पॉप-अप ला कंट्रोल करणारी JavaScript -->
+<script>
+    let deferredPrompt;
+    const pwaModal = document.getElementById('pwaInstallModal');
+    const installBtn = document.getElementById('pwaInstallConfirmBtn');
+    const cancelBtn = document.getElementById('pwaCancelBtn');
+
+    // १. ब्राउझरचा मूळ पॉप-अप थांबवणे आणि आपला मोडल दाखवणे
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // क्रोमचा वरून येणारा ट्रान्सलेशन खाली लपणारा पॉप-अप थांबवा
+        e.preventDefault();
+        
+        // इव्हेंट सेव्ह करा (म्हणजे बटण दाबल्यावर वापरता येईल)
+        deferredPrompt = e;
+        
+        // आपला मध्यभागी येणारा मोडल दाखवा
+        pwaModal.style.display = 'flex';
+    });
+
+    // २. 'इन्स्टॉल करा' बटणावर क्लिक केल्यावर
+    installBtn.addEventListener('click', async () => {
+        // आधी आपला मोडल लपवा
+        pwaModal.style.display = 'none';
+        
+        // आता क्रोमचा फायनल इन्स्टॉल प्रॉम्ट ट्रिगर करा
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            // युजरने काय निवडले (Install की Cancel) ते तपासा
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('युजरने ॲप इन्स्टॉल केले.');
+            }
+            // प्रॉम्ट वापरून झाल्यावर रिकामा करा
+            deferredPrompt = null;
+        }
+    });
+
+    // ३. 'नंतर करा' बटणावर क्लिक केल्यावर
+    cancelBtn.addEventListener('click', () => {
+        pwaModal.style.display = 'none';
+    });
+</script>
+<!-- ============================================================== -->
+    
 </body>
 
 <!-- प्रशासकीय अधिकारी लॉगिन बटण -->

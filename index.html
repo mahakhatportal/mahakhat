@@ -520,6 +520,43 @@
             });
             document.getElementById('details-container').innerHTML = `<div class="error">${message}</div>`;
         }
+
+        // १. सिंकिंगची वेळ ठरवणे (६०,००० मिलिसेकंद = १ मिनिट)
+const SYNC_INTERVAL = 60000; 
+let autoSyncTimer;
+
+// २. स्मार्ट पोलिंग सुरू करणारे फंक्शन
+function startLiveSync() {
+    // आधीचा टायमर क्लिअर करा (डबल टायमर लागू नये म्हणून)
+    if(autoSyncTimer) clearInterval(autoSyncTimer);
+
+    autoSyncTimer = setInterval(() => {
+        console.log("🔄 लाईव्ह सिंकिंग: नवीन डेटा तपासत आहे...");
+        
+        // येथे तुमचे मूळ डेटा आणणारे फंक्शन टाका 
+        // उदा. fetchStockData(); किंवा loadData();
+        fetchStockData(); 
+        
+    }, SYNC_INTERVAL);
+}
+
+// पेज लोड झाल्यावर लगेच सिंकिंग सुरू करा
+startLiveSync();
+
+// ३. पेज व्हिजिबिलिटी (स्क्रीन अनलॉक किंवा टॅब पुन्हा उघडल्यावर)
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        console.log("📱 ॲप पुन्हा ऍक्टिव्ह झाले: तात्काळ सिंक करत आहे...");
+        
+        // युजर परत आल्यावर विनाविलंब नवीन डेटा आणा
+        fetchStockData(); 
+        
+        // टायमर रिस्टार्ट करा
+        startLiveSync(); 
+    }
+});
+
+        
     </script>
 
 <!-- ==============================================================

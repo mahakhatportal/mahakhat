@@ -77,7 +77,7 @@
 </head>
 <body>
     
-    <!-- प्रशासकीय अधिकारी लॉगिन बटण (हे आता योग्य जागी <body> मध्ये आहे) -->
+    <!-- प्रशासकीय अधिकारी लॉगिन बटण -->
     <div class="admin-login-bar">
         <a href="admin/login.html" class="admin-login-btn">🔒 प्रशासकीय अधिकारी लॉगिन</a>
     </div>
@@ -170,20 +170,72 @@
             return Math.round(kg / bagSize);
         }
 
+        // ==========================================
+        // तारखेसाठी नवीन आणि अचूक लॉजिक
+        // ==========================================
+        function getValidDate(rawDate) {
+            if (!rawDate) return new Date(0);
+            let parsed = new Date(rawDate);
+            if (!isNaN(parsed.getTime())) return parsed;
+            
+            // जर तारीख DD/MM/YYYY HH:MM:SS फॉरमॅटमध्ये असेल
+            if (typeof rawDate === 'string' && rawDate.includes('/')) {
+                const parts = rawDate.split(/[\s/:]+/); 
+                if (parts.length >= 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10) - 1;
+                    const year = parseInt(parts[2], 10);
+                    const hours = parts.length > 3 ? parseInt(parts[3], 10) : 0;
+                    const mins = parts.length > 4 ? parseInt(parts[4], 10) : 0;
+                    const secs = parts.length > 5 ? parseInt(parts[5], 10) : 0;
+                    parsed = new Date(year, month, day, hours, mins, secs);
+                    if (!isNaN(parsed.getTime())) return parsed;
+                }
+            }
+            return new Date(0);
+        }
+
+        // निवडलेल्या डेटामधील सर्वात नवीन (Latest) तारीख शोधणे
+        function updateDateDisplay(dataList) {
+            if (!dataList || dataList.length === 0) return;
+            
+            let latestTime = 0;
+            dataList.forEach(item => {
+                const dateStr = item.LastUpdated || item['Last Updated'];
+                if (dateStr) {
+                    const d = getValidDate(dateStr);
+                    if (d.getTime() > latestTime) {
+                        latestTime = d.getTime();
+                    }
+                }
+            });
+
+            if (latestTime > 0) {
+                const finalDate = new Date(latestTime);
+                const strMr = finalDate.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+                const strEn = finalDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+                
+                document.getElementById('update-time').textContent = strMr;
+                document.getElementById('update-time-en').textContent = `Last Updated: ${strEn}`;
+            } else {
+                document.getElementById('update-time').textContent = 'तारीख उपलब्ध नाही';
+                document.getElementById('update-time-en').textContent = 'Last Updated: N/A';
+            }
+        }
+        // ==========================================
+
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
-            loadData(false); // पहिली वेळ (बॅकग्राउंड नाही)
+            loadData(false);
         });
 
-        // 'isBackground' पॅरामीटर: जर true असेल तर स्क्रीनवर लोडिंग दाखवणार नाही (Silent Sync)
         function loadData(isBackground = false) {
             if (!isBackground) showLoading();
             else document.getElementById('liveSyncIndicator').style.display = 'block';
 
-            // कॅश बस्टिंगसाठी टायमस्टँप जोडला (ही सर्वात महत्त्वाची ओळ आहे)
             const cacheBusterUrl = CONFIG.scriptUrl + "?t=" + new Date().getTime();
 
-            fetch(cacheBusterUrl, { cache: 'no-store' }) // जुना डेटा ब्लॉक
+            fetch(cacheBusterUrl, { cache: 'no-store' })
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
@@ -208,32 +260,14 @@
         function processData(data, isBackground) {
             allData = data.filter(item => item.RetailerName || item['Wholesaler Id']); 
             
-            let lastUpdated = 'Unknown date';
-            let lastUpdatedEn = 'Unknown date';
-            
-            if (allData.length > 0) {
-                const rawDate = allData[0].LastUpdated || allData[0]['Last Updated'] || '';
-                let updateDate = new Date();
-                if(rawDate.includes('/')) {
-                    const parts = rawDate.split('/');
-                    if(parts.length === 3) updateDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                } else if(rawDate) {
-                    updateDate = new Date(rawDate);
-                }
-                lastUpdated = updateDate.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
-                lastUpdatedEn = updateDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
-            }
-            
-            document.getElementById('update-time').textContent = lastUpdated;
-            document.getElementById('update-time-en').textContent = `Last Updated: ${lastUpdatedEn}`;
-            
             if (!isBackground) {
-                // पहिल्यांदा लोड झाल्यावर ड्रॉपडाउन्स सेट करणे
                 initFilters();
+                updateDateDisplay(allData); // सुरुवातीला संपूर्ण महाराष्ट्राची अद्ययावत तारीख
             } else {
-                // जर बॅकग्राउंड सिंक असेल आणि युजरने 'शोधा' दाबले असेल, तर फक्त टेबलचे आकडे अपडेट करणे
                 if (document.body.classList.contains('tables-visible')) {
                     applyFilters();
+                } else {
+                    updateDateDisplay(allData);
                 }
             }
         }
@@ -301,6 +335,9 @@
             
             document.body.classList.add('tables-visible');
             updateTables();
+            
+            // शोध (Search) बटण दाबल्यावर फक्त फिल्टर केलेल्या डेटामधील अद्ययावत तारीख दिसेल
+            updateDateDisplay(filteredData);
         }
 
         function resetFilters() {
@@ -313,6 +350,9 @@
             document.body.classList.remove('tables-visible');
             document.querySelectorAll('.loading').forEach(el => el.textContent = 'कृपया "शोधा" बटण दाबा');
             document.getElementById('details-container').innerHTML = '<div class="loading">कृपया "शोधा" बटण दाबा</div>';
+            
+            // फिल्टर रीसेट केल्यावर पुन्हा संपूर्ण डेटाची तारीख दिसेल
+            updateDateDisplay(allData);
         }
 
         function updateTables() {
@@ -486,24 +526,19 @@
             document.getElementById('details-container').innerHTML = `<div class="error">${message}</div>`;
         }
 
-        // ==========================================
-        // Live Sync व स्मार्ट पोलिंग (Smart Polling)
-        // ==========================================
-        const SYNC_INTERVAL = 60000; // ६० सेकंद
+        const SYNC_INTERVAL = 60000;
         let autoSyncTimer;
 
         function startLiveSync() {
             if(autoSyncTimer) clearInterval(autoSyncTimer);
             autoSyncTimer = setInterval(() => {
                 console.log("🔄 लाईव्ह सिंकिंग: नवीन डेटा तपासत आहे...");
-                loadData(true); // true म्हणजे background sync (टेबल ब्लँक होणार नाही)
+                loadData(true); 
             }, SYNC_INTERVAL);
         }
 
-        // पेज लोड झाल्यावर लगेच सिंकिंग सुरू करा
         startLiveSync();
 
-        // पेज पुन्हा उघडल्यावर (Visibility Change) तात्काळ सिंक करणे
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") {
                 console.log("📱 ॲप पुन्हा ऍक्टिव्ह झाले: तात्काळ सिंक करत आहे...");

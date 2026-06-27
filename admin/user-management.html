@@ -8,22 +8,19 @@
     <link rel="stylesheet" href="../css/style.css">
     
     <!-- लक्षात ठेवा: आपण `<style>` टॅग पूर्णपणे काढला आहे, कारण सर्व डिझाईन style.css मध्ये आहे -->
-    <!-- PWA Manifest -->
-<link rel="manifest" href="manifest.json">
+   
+<!-- PWA Manifest (Main Folder Absolute Path) -->
+    <link rel="manifest" href="/mahakhat/manifest.json">
+    <meta name="theme-color" content="#1A365D">
+    <link rel="apple-touch-icon" href="/mahakhat/Icon/icon-192.png">
 
-<!-- मोबाईल स्टेटस बार चा रंग -->
-<meta name="theme-color" content="#1A365D">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/mahakhat/sw.js')
+            .then(() => console.log("Admin Connected to Main PWA"));
+        }
+    </script>
 
-<!-- Apple/iOS साठी आयकॉन -->
-<link rel="apple-touch-icon" href="Icon/icon-192.png">
-
-<script>
-    // सर्व्हिस वर्कर रजिस्टर करणे
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js')
-        .then(() => console.log("PWA Service Worker Registered Successfully"));
-    }
-</script>
 </head>
 <body>
 

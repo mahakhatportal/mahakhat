@@ -10,10 +10,9 @@
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/mahakhat/sw.js')
-            .then(() => console.log("Admin Connected to Main PWA"));
+            .then(() => console.log("Main PWA Connected"));
         }
     </script>
-    
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,11 +20,19 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'Nirmala UI', Arial, sans-serif; }
         body { background-color: #f5f9fc; color: #333; line-height: 1.6; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        
+        /* प्रशासकीय अधिकारी लॉगिन बटण स्टाईल */
+        .admin-login-bar { text-align: right; margin-bottom: 15px; }
+        .admin-login-btn { background-color: #1e293b; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; border: 1px solid #334155; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block; transition: background 0.3s; }
+        .admin-login-btn:hover { background-color: #0f172a; }
+
         header { background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%); color: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); margin-bottom: 25px; text-align: center; }
         h1 { font-size: 28px; margin-bottom: 10px; }
         .creator-credit { font-size: 14px; margin-top: 10px; font-style: italic; opacity: 0.9; }
-        .last-update { background-color: #e8f5e9; padding: 12px 20px; border-radius: 8px; margin-bottom: 25px; font-size: 16px; border-left: 4px solid #4caf50; }
+        .last-update { background-color: #e8f5e9; padding: 12px 20px; border-radius: 8px; margin-bottom: 25px; font-size: 16px; border-left: 4px solid #4caf50; display: flex; justify-content: space-between; align-items: center; }
         .english-date { font-size: 14px; display: block; margin-top: 5px; color: #555; }
+        .live-indicator { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: none; }
+        
         .filter-section { background-color: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 30px; }
         .filter-section h2 { color: #2e7d32; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; }
         .filter-group { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 15px; }
@@ -36,6 +43,7 @@
         .button-group { display: flex; gap: 15px; margin-top: 20px; }
         button { background: linear-gradient(to bottom, #4caf50, #388e3c); color: white; border: none; cursor: pointer; font-weight: 600; letter-spacing: 0.5px; flex: 1; }
         button:hover { background: linear-gradient(to bottom, #43a047, #2e7d32); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        
         .table-container { background-color: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); margin-bottom: 30px; overflow-x: auto; }
         .table-container h2 { color: #2e7d32; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; }
         table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 700px; }
@@ -68,6 +76,12 @@
     </style>
 </head>
 <body>
+    
+    <!-- प्रशासकीय अधिकारी लॉगिन बटण (हे आता योग्य जागी <body> मध्ये आहे) -->
+    <div class="admin-login-bar">
+        <a href="admin/login.html" class="admin-login-btn">🔒 प्रशासकीय अधिकारी लॉगिन</a>
+    </div>
+
     <header>
         <h1>रासायनिक खत उपलब्धता माहीती</h1>
         <p>शेतकऱ्यांसाठी ताजी खत उपलब्धतेची माहिती</p>
@@ -75,8 +89,11 @@
     </header>
     
     <div class="last-update">
-        अद्ययावत: <span id="update-time">डेटा तपासत आहे...</span>
-        <span id="update-time-en" class="english-date">Last Updated: Checking data...</span>
+        <div>
+            अद्ययावत: <span id="update-time">डेटा तपासत आहे...</span>
+            <span id="update-time-en" class="english-date">Last Updated: Checking data...</span>
+        </div>
+        <div id="liveSyncIndicator" class="live-indicator">🟢 Live Syncing...</div>
     </div>
     
     <div class="filter-section">
@@ -138,16 +155,14 @@
     </div>
 
     <script>
-        // तुमची नवीन बॅकएंड स्क्रिप्ट लिंक
         const CONFIG = {
             scriptUrl: 'https://script.google.com/macros/s/AKfycbwjvCs1T14Llmy3RIOLDHemNOHWl0mJLNIQB5-zupyc4DEXHfHE5KvG5sPR5b-oYmJT/exec',
-            defaultDistrict: 'वाशिम' // तुमच्या जिल्ह्यानुसार बदलू शकता
+            defaultDistrict: 'वाशिम'
         };
 
         let allData = [];
         let filteredData = [];
 
-        // टन मधील साठा गोण्यांमध्ये रूपांतरित करणे (Urea 45kg, बाकी सर्व 50kg)
         function convertToBags(product, metricTons) {
             const tons = parseFloat(metricTons) || 0;
             const kg = tons * 1000; 
@@ -157,59 +172,70 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             setupEventListeners();
-            loadData();
+            loadData(false); // पहिली वेळ (बॅकग्राउंड नाही)
         });
 
-        function loadData() {
-            showLoading();
-            fetch(CONFIG.scriptUrl)
+        // 'isBackground' पॅरामीटर: जर true असेल तर स्क्रीनवर लोडिंग दाखवणार नाही (Silent Sync)
+        function loadData(isBackground = false) {
+            if (!isBackground) showLoading();
+            else document.getElementById('liveSyncIndicator').style.display = 'block';
+
+            // कॅश बस्टिंगसाठी टायमस्टँप जोडला (ही सर्वात महत्त्वाची ओळ आहे)
+            const cacheBusterUrl = CONFIG.scriptUrl + "?t=" + new Date().getTime();
+
+            fetch(cacheBusterUrl, { cache: 'no-store' }) // जुना डेटा ब्लॉक
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(data => {
+                    document.getElementById('liveSyncIndicator').style.display = 'none';
                     if (Array.isArray(data) && data.length > 0) {
-                        processData(data);
+                        processData(data, isBackground);
                     } else if (data.error) {
-                        showError("डेटा उपलब्ध नाही: " + data.message);
+                        if(!isBackground) showError("डेटा उपलब्ध नाही: " + data.message);
                     } else {
-                        showError("डेटा सापडला नाही. कृपया पुन्हा प्रयत्न करा.");
+                        if(!isBackground) showError("डेटा सापडला नाही. कृपया पुन्हा प्रयत्न करा.");
                     }
                 })
                 .catch(error => {
+                    document.getElementById('liveSyncIndicator').style.display = 'none';
                     console.error('Fetch error:', error);
-                    showError("सर्व्हरशी संपर्क होऊ शकला नाही. इंटरनेट तपासा.");
+                    if(!isBackground) showError("सर्व्हरशी संपर्क होऊ शकला नाही. इंटरनेट तपासा.");
                 });
         }
 
-        function processData(data) {
-            // फक्त नावे असलेला डेटा फिल्टर करणे
+        function processData(data, isBackground) {
             allData = data.filter(item => item.RetailerName || item['Wholesaler Id']); 
             
             let lastUpdated = 'Unknown date';
             let lastUpdatedEn = 'Unknown date';
             
             if (allData.length > 0) {
-                // नवीन हेडर्सनुसार LastUpdated घेणे
                 const rawDate = allData[0].LastUpdated || allData[0]['Last Updated'] || '';
                 let updateDate = new Date();
-                
                 if(rawDate.includes('/')) {
-                    // dd/MM/yyyy ला Date ऑब्जेक्टमध्ये बदलणे
                     const parts = rawDate.split('/');
                     if(parts.length === 3) updateDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 } else if(rawDate) {
                     updateDate = new Date(rawDate);
                 }
-                
-                lastUpdated = updateDate.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-                lastUpdatedEn = updateDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+                lastUpdated = updateDate.toLocaleDateString('mr-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+                lastUpdatedEn = updateDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' });
             }
             
             document.getElementById('update-time').textContent = lastUpdated;
             document.getElementById('update-time-en').textContent = `Last Updated: ${lastUpdatedEn}`;
             
-            initFilters();
+            if (!isBackground) {
+                // पहिल्यांदा लोड झाल्यावर ड्रॉपडाउन्स सेट करणे
+                initFilters();
+            } else {
+                // जर बॅकग्राउंड सिंक असेल आणि युजरने 'शोधा' दाबले असेल, तर फक्त टेबलचे आकडे अपडेट करणे
+                if (document.body.classList.contains('tables-visible')) {
+                    applyFilters();
+                }
+            }
         }
 
         function initFilters() {
@@ -296,7 +322,6 @@
 
         function updateSummaryTable() {
             const tableBody = document.querySelector('#summary-table tbody');
-            
             try {
                 const summary = {};
                 let totalBags = 0, totalTons = 0, totalProtectedBags = 0, totalProtectedTons = 0, totalRetailers = 0;
@@ -307,8 +332,7 @@
                     const key = `${item.SubDistrict}_${item.Product}`;
                     if (!summary[key]) {
                         summary[key] = {
-                            subdistrict: item.SubDistrict,
-                            product: item.Product || 'अज्ञात',
+                            subdistrict: item.SubDistrict, product: item.Product || 'अज्ञात',
                             totalBags: 0, protectedBags: 0, totalTons: 0, protectedTons: 0, count: 0
                         };
                     }
@@ -316,50 +340,31 @@
                     const bags = convertToBags(item.Product, item.Stock);
                     const tons = parseFloat(item.Stock) || 0; 
                     
-                    summary[key].totalBags += bags;
-                    summary[key].totalTons += tons;
-                    summary[key].count++;
-                    
-                    totalBags += bags;
-                    totalTons += tons;
-                    totalRetailers++;
+                    summary[key].totalBags += bags; summary[key].totalTons += tons; summary[key].count++;
+                    totalBags += bags; totalTons += tons; totalRetailers++;
                     
                     if (item.isProtected) {
-                        summary[key].protectedBags += bags;
-                        summary[key].protectedTons += tons;
-                        totalProtectedBags += bags;
-                        totalProtectedTons += tons;
+                        summary[key].protectedBags += bags; summary[key].protectedTons += tons;
+                        totalProtectedBags += bags; totalProtectedTons += tons;
                     }
                 });
                 
                 const sortedData = Object.values(summary).sort((a, b) => a.subdistrict.localeCompare(b.subdistrict) || a.product.localeCompare(b.product));
-                
                 tableBody.innerHTML = '';
                 
                 if (sortedData.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5">कोणताही डेटा उपलब्ध नाही</td></tr>';
-                    return;
+                    tableBody.innerHTML = '<tr><td colspan="5">कोणताही डेटा उपलब्ध नाही</td></tr>'; return;
                 }
                 
                 sortedData.forEach(item => {
                     let bagsDisplay = item.totalBags.toLocaleString('mr-IN');
-                    if (item.protectedBags > 0) {
-                        bagsDisplay += `<br><span style="font-size: 11px; color: red; font-style: italic;">(${item.protectedBags.toLocaleString('mr-IN')} संरक्षित)</span>`;
-                    }
+                    if (item.protectedBags > 0) bagsDisplay += `<br><span style="font-size: 11px; color: red; font-style: italic;">(${item.protectedBags.toLocaleString('mr-IN')} संरक्षित)</span>`;
                     
                     let tonsDisplay = item.totalTons.toLocaleString('mr-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-                    if (item.protectedTons > 0) {
-                        tonsDisplay += `<br><span style="font-size: 11px; color: red; font-style: italic;">(${item.protectedTons.toLocaleString('mr-IN', {minimumFractionDigits: 2})} संरक्षित)</span>`;
-                    }
+                    if (item.protectedTons > 0) tonsDisplay += `<br><span style="font-size: 11px; color: red; font-style: italic;">(${item.protectedTons.toLocaleString('mr-IN', {minimumFractionDigits: 2})} संरक्षित)</span>`;
                     
                     const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.subdistrict}</td>
-                        <td>${item.product}</td>
-                        <td>${bagsDisplay}</td>
-                        <td>${tonsDisplay}</td> 
-                        <td>${item.count}</td>
-                    `;
+                    row.innerHTML = `<td>${item.subdistrict}</td><td>${item.product}</td><td>${bagsDisplay}</td><td>${tonsDisplay}</td><td>${item.count}</td>`;
                     tableBody.appendChild(row);
                 });
                 
@@ -372,16 +377,9 @@
                     
                     const totalRow = document.createElement('tr');
                     totalRow.className = 'total-row';
-                    totalRow.innerHTML = `
-                        <td><strong>एकूण</strong></td>
-                        <td></td>
-                        <td><strong>${totalBagsDisplay}</strong></td>
-                        <td><strong>${totalTonsDisplay}</strong></td> 
-                        <td><strong>${totalRetailers}</strong></td>
-                    `;
+                    totalRow.innerHTML = `<td><strong>एकूण</strong></td><td></td><td><strong>${totalBagsDisplay}</strong></td><td><strong>${totalTonsDisplay}</strong></td><td><strong>${totalRetailers}</strong></td>`;
                     tableBody.appendChild(totalRow);
                 }
-                
             } catch (error) {
                 console.error('Error:', error);
                 tableBody.innerHTML = '<tr><td colspan="5" class="error">डेटा प्रदर्शित करताना त्रुटी</td></tr>';
@@ -399,11 +397,9 @@
                     .sort((a, b) => (a.RetailerName || '').localeCompare(b.RetailerName || ''));
                 
                 if (sortedData.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:20px; color:#777;">कोणताही डेटा उपलब्ध नाही</div>';
-                    return;
+                    container.innerHTML = '<div style="text-align:center; padding:20px; color:#777;">कोणताही डेटा उपलब्ध नाही</div>'; return;
                 }
 
-                // कॅटेगरीज अधिक लवचिक आणि अचूक केल्या आहेत
                 const categories = [
                     { id: 'PACS', title: 'प्राथमिक कृषी सहकारी सोसायटी (PACS)', keywords: ['pacs', 'सोसायटी'] },
                     { id: 'RETAILER', title: 'खाजगी किरकोळ विक्रेते (Private Retailer)', keywords: ['retail', 'retailer'] },
@@ -412,20 +408,15 @@
                 ];
 
                 categories.forEach(cat => {
-                    // अचूक डेटा फिल्टर करण्यासाठी Keywords आणि 'Nature' चा वापर 
                     const catData = sortedData.filter(item => {
                         const natureStr = String(item.DealerShipNature || item['DealerShip Nature'] || '').toLowerCase();
                         const rOrW = String(item.Nature || '').toUpperCase();
-                        
-                        // होलसेलर आणि रिटेलरचे अचूक वर्गीकरण
                         if(cat.id === 'WHOLESALER' && rOrW === 'W') return true;
                         if(cat.id === 'RETAILER' && rOrW === 'R' && !natureStr.includes('pacs') && !natureStr.includes('state')) return true;
-                        
-                        // इतर वर्गीकरण
                         return cat.keywords.some(kw => natureStr.includes(kw));
                     });
                     
-                    if(catData.length === 0) return; // रिकामा टेबल लपवण्यासाठी (हवे असल्यास काढू शकता)
+                    if(catData.length === 0) return;
                     
                     const block = document.createElement('div');
                     block.style.marginBottom = '40px';
@@ -437,27 +428,13 @@
                     block.appendChild(heading);
                     
                     const table = document.createElement('table');
-                    table.innerHTML = `
-                        <thead>
-                            <tr>
-                                <th>क्र.</th>
-                                <th>कृषी सेवा केंद्र</th>
-                                <th>तालुका</th>
-                                <th>खत प्रकार</th>
-                                <th>साठा (गोणी संख्या)</th>
-                                <th>संपर्क</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    `;
-                    
+                    table.innerHTML = `<thead><tr><th>क्र.</th><th>कृषी सेवा केंद्र</th><th>तालुका</th><th>खत प्रकार</th><th>साठा (गोणी संख्या)</th><th>संपर्क</th></tr></thead><tbody></tbody>`;
                     const tbody = table.querySelector('tbody');
                     let totalBags = 0;
                     
                     catData.forEach((item, index) => {
                         const bags = convertToBags(item.Product, item.Stock);
                         totalBags += bags;
-                        
                         let retailerNameDisplay = item.RetailerName || 'अज्ञात';
                         let stockDisplay = bags.toLocaleString('mr-IN');
                         
@@ -467,30 +444,18 @@
                         }
                         
                         const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${index + 1}</td>
-                            <td>${retailerNameDisplay}</td>
-                            <td>${item.SubDistrict || 'अज्ञात'}</td>
-                            <td>${item.Product || 'अज्ञात'}</td>
-                            <td>${stockDisplay}</td>
-                            <td>${item.Mobile ? `<a class="contact-link" href="tel:${item.Mobile}">${item.Mobile}</a>` : 'उपलब्ध नाही'}</td>
-                        `;
+                        row.innerHTML = `<td>${index + 1}</td><td>${retailerNameDisplay}</td><td>${item.SubDistrict || 'अज्ञात'}</td><td>${item.Product || 'अज्ञात'}</td><td>${stockDisplay}</td><td>${item.Mobile ? `<a class="contact-link" href="tel:${item.Mobile}">${item.Mobile}</a>` : 'उपलब्ध नाही'}</td>`;
                         tbody.appendChild(row);
                     });
                     
                     const totalRow = document.createElement('tr');
                     totalRow.className = 'total-row';
-                    totalRow.innerHTML = `
-                        <td colspan="4"><strong>एकूण साठा</strong></td>
-                        <td><strong>${totalBags.toLocaleString('mr-IN')}</strong></td>
-                        <td></td>
-                    `;
+                    totalRow.innerHTML = `<td colspan="4"><strong>एकूण साठा</strong></td><td><strong>${totalBags.toLocaleString('mr-IN')}</strong></td><td></td>`;
                     tbody.appendChild(totalRow);
                     
                     block.appendChild(table);
                     container.appendChild(block);
                 });
-                
             } catch (error) {
                 console.error('Error updating details table:', error);
                 container.innerHTML = '<div class="error">डेटा प्रदर्शित करताना त्रुटी आली आहे</div>';
@@ -521,106 +486,53 @@
             document.getElementById('details-container').innerHTML = `<div class="error">${message}</div>`;
         }
 
-        // १. सिंकिंगची वेळ ठरवणे (६०,००० मिलिसेकंद = १ मिनिट)
-const SYNC_INTERVAL = 60000; 
-let autoSyncTimer;
+        // ==========================================
+        // Live Sync व स्मार्ट पोलिंग (Smart Polling)
+        // ==========================================
+        const SYNC_INTERVAL = 60000; // ६० सेकंद
+        let autoSyncTimer;
 
-// २. स्मार्ट पोलिंग सुरू करणारे फंक्शन
-function startLiveSync() {
-    // आधीचा टायमर क्लिअर करा (डबल टायमर लागू नये म्हणून)
-    if(autoSyncTimer) clearInterval(autoSyncTimer);
+        function startLiveSync() {
+            if(autoSyncTimer) clearInterval(autoSyncTimer);
+            autoSyncTimer = setInterval(() => {
+                console.log("🔄 लाईव्ह सिंकिंग: नवीन डेटा तपासत आहे...");
+                loadData(true); // true म्हणजे background sync (टेबल ब्लँक होणार नाही)
+            }, SYNC_INTERVAL);
+        }
 
-    autoSyncTimer = setInterval(() => {
-        console.log("🔄 लाईव्ह सिंकिंग: नवीन डेटा तपासत आहे...");
-        
-        // येथे तुमचे मूळ डेटा आणणारे फंक्शन टाका 
-        // उदा. fetchStockData(); किंवा loadData();
-        fetchStockData(); 
-        
-    }, SYNC_INTERVAL);
-}
+        // पेज लोड झाल्यावर लगेच सिंकिंग सुरू करा
+        startLiveSync();
 
-// पेज लोड झाल्यावर लगेच सिंकिंग सुरू करा
-startLiveSync();
+        // पेज पुन्हा उघडल्यावर (Visibility Change) तात्काळ सिंक करणे
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                console.log("📱 ॲप पुन्हा ऍक्टिव्ह झाले: तात्काळ सिंक करत आहे...");
+                loadData(true); 
+                startLiveSync(); 
+            }
+        });
 
-// ३. पेज व्हिजिबिलिटी (स्क्रीन अनलॉक किंवा टॅब पुन्हा उघडल्यावर)
-document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-        console.log("📱 ॲप पुन्हा ऍक्टिव्ह झाले: तात्काळ सिंक करत आहे...");
-        
-        // युजर परत आल्यावर विनाविलंब नवीन डेटा आणा
-        fetchStockData(); 
-        
-        // टायमर रिस्टार्ट करा
-        startLiveSync(); 
-    }
-});
-
-        
     </script>
 
 <!-- ==============================================================
      PWA कस्टम इन्स्टॉल पॉप-अप (मध्यभागी दिसणारे कार्ड)
 ============================================================== -->
 <style>
-    /* पॉप-अप ची स्टाईल */
-    .pwa-modal-overlay {
-        display: none; /* सुरुवातीला लपवलेले असेल */
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(15, 23, 42, 0.7); /* डार्क ब्लर बॅकग्राउंड */
-        backdrop-filter: blur(5px);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-    }
-    .pwa-modal-card {
-        background: #ffffff;
-        padding: 25px;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 340px;
-        text-align: center;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        animation: popIn 0.3s ease-out forwards;
-    }
-    @keyframes popIn {
-        from { transform: scale(0.9); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
-    }
-    .pwa-icon {
-        width: 75px; height: 75px;
-        margin-bottom: 15px;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .pwa-modal-card h3 {
-        color: #1A365D; margin: 0 0 10px 0; font-size: 20px;
-    }
-    .pwa-modal-card p {
-        color: #64748B; font-size: 14px; margin: 0 0 20px 0; line-height: 1.5;
-    }
-    .pwa-btn-container {
-        display: flex; gap: 12px; justify-content: center;
-    }
-    .pwa-btn-cancel {
-        background: #f1f5f9; color: #475569; border: none;
-        padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1;
-        font-size: 15px; transition: background 0.2s;
-    }
-    .pwa-btn-install {
-        background: #2E7D32; color: #ffffff; border: none;
-        padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1;
-        font-size: 15px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(46, 125, 50, 0.2);
-    }
+    .pwa-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); z-index: 9999; align-items: center; justify-content: center; }
+    .pwa-modal-card { background: #ffffff; padding: 25px; border-radius: 12px; width: 90%; max-width: 340px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); animation: popIn 0.3s ease-out forwards; }
+    @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .pwa-icon { width: 75px; height: 75px; margin-bottom: 15px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .pwa-modal-card h3 { color: #1A365D; margin: 0 0 10px 0; font-size: 20px; }
+    .pwa-modal-card p { color: #64748B; font-size: 14px; margin: 0 0 20px 0; line-height: 1.5; }
+    .pwa-btn-container { display: flex; gap: 12px; justify-content: center; }
+    .pwa-btn-cancel { background: #f1f5f9; color: #475569; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 15px; transition: background 0.2s; }
+    .pwa-btn-install { background: #2E7D32; color: #ffffff; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 15px; transition: background 0.2s; box-shadow: 0 4px 6px rgba(46, 125, 50, 0.2); }
     .pwa-btn-cancel:hover { background: #e2e8f0; }
     .pwa-btn-install:hover { background: #1b5e20; }
 </style>
 
-<!-- पॉप-अप चे HTML स्ट्रक्चर -->
 <div id="pwaInstallModal" class="pwa-modal-overlay">
     <div class="pwa-modal-card">
-        <!-- तुमचा लोगो -->
         <img src="/mahakhat/Icon/icon-192.png" alt="MahaKhat Icon" class="pwa-icon">
         <h3>महाखत ॲप</h3>
         <p>उत्तम अनुभव आणि जलद वापरासाठी हे पोर्टल मोबाईल ॲप म्हणून इन्स्टॉल करा.</p>
@@ -631,44 +543,28 @@ document.addEventListener("visibilitychange", () => {
     </div>
 </div>
 
-<!-- पॉप-अप ला कंट्रोल करणारी JavaScript -->
 <script>
     let deferredPrompt;
     const pwaModal = document.getElementById('pwaInstallModal');
     const installBtn = document.getElementById('pwaInstallConfirmBtn');
     const cancelBtn = document.getElementById('pwaCancelBtn');
 
-    // १. ब्राउझरचा मूळ पॉप-अप थांबवणे आणि आपला मोडल दाखवणे
     window.addEventListener('beforeinstallprompt', (e) => {
-        // क्रोमचा वरून येणारा ट्रान्सलेशन खाली लपणारा पॉप-अप थांबवा
         e.preventDefault();
-        
-        // इव्हेंट सेव्ह करा (म्हणजे बटण दाबल्यावर वापरता येईल)
         deferredPrompt = e;
-        
-        // आपला मध्यभागी येणारा मोडल दाखवा
         pwaModal.style.display = 'flex';
     });
 
-    // २. 'इन्स्टॉल करा' बटणावर क्लिक केल्यावर
     installBtn.addEventListener('click', async () => {
-        // आधी आपला मोडल लपवा
         pwaModal.style.display = 'none';
-        
-        // आता क्रोमचा फायनल इन्स्टॉल प्रॉम्ट ट्रिगर करा
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            // युजरने काय निवडले (Install की Cancel) ते तपासा
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('युजरने ॲप इन्स्टॉल केले.');
-            }
-            // प्रॉम्ट वापरून झाल्यावर रिकामा करा
+            if (outcome === 'accepted') console.log('युजरने ॲप इन्स्टॉल केले.');
             deferredPrompt = null;
         }
     });
 
-    // ३. 'नंतर करा' बटणावर क्लिक केल्यावर
     cancelBtn.addEventListener('click', () => {
         pwaModal.style.display = 'none';
     });
@@ -676,10 +572,4 @@ document.addEventListener("visibilitychange", () => {
 <!-- ============================================================== -->
     
 </body>
-
-<!-- प्रशासकीय अधिकारी लॉगिन बटण -->
-    <div style="text-align: right; padding: 10px 20px;">
-        <a href="admin/login.html" style="background-color: #1e293b; color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; border: 1px solid #334155; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔒 प्रशासकीय अधिकारी लॉगिन</a>
-    </div>
-    
 </html>

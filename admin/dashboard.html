@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MahaKhat - राज्यस्तरीय मुख्य नियंत्रण कक्ष</title>
+
+    <!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- मोबाईल स्टेटस बार चा रंग -->
+<meta name="theme-color" content="#1A365D">
+
+<!-- Apple/iOS साठी आयकॉन -->
+<link rel="apple-touch-icon" href="Icon/icon-192.png">
+
+<script>
+    // सर्व्हिस वर्कर रजिस्टर करणे
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+        .then(() => console.log("PWA Service Worker Registered Successfully"));
+    }
+</script>
     
     <link rel="stylesheet" href="../css/style.css">
     

@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
+    <!-- PWA Manifest (Absolute Path) -->
+    <link rel="manifest" href="/mahakhat/manifest.json">
+
+    <meta name="theme-color" content="#1A365D">
+
+    <!-- Apple/iOS Icon (Absolute Path) -->
+    <link rel="apple-touch-icon" href="/mahakhat/Icon/icon-192.png">
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            // Service Worker (Absolute Path)
+            navigator.serviceWorker.register('/mahakhat/sw.js')
+            .then(() => console.log("PWA Registered for the entire domain"));
+        }
+    </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>रासायनिक खत उपलब्धता माहीती</title>

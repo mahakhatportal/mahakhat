@@ -48,10 +48,10 @@
         #reset-filters:hover { background: #475569 !important; }
 
         /* टेबल्स - मूळ कॉम्पॅक्ट आणि सुटसुटीत डिझाईन */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 700px; }
-        th { background-color: #e8f5e9; color: var(--secondary-color); font-weight: 600; text-align: left; padding: 14px; border-bottom: 2px solid var(--secondary-color); }
-        td { padding: 12px 14px; border-bottom: 1px solid var(--border-color); }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 700px; }
+        th { background-color: #e8f5e9; color: var(--secondary-color); font-weight: 600; text-align: left; padding: 12px 10px; border-bottom: 2px solid var(--secondary-color); white-space: nowrap; }
+        td { padding: 10px 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
         tr:nth-child(even) { background-color: #f9fdf9; }
         tr:hover { background-color: #f1f8e9; }
         .total-row { font-weight: bold; background-color: #e8f5e9 !important; }
@@ -70,7 +70,7 @@
         ============================================================== */
         @media (max-width: 768px) {
             body { padding: 15px; }
-            header, .filter-section, .table-container { padding: 20px; }
+            header, .filter-section, .table-container { padding: 15px; }
             
             .filter-group { flex-direction: column; gap: 15px; }
             .button-group { flex-direction: column; }
@@ -78,11 +78,11 @@
             .share-card { flex-direction: column; text-align: center; gap: 15px; }
             .share-btn { width: 100%; margin-top: 5px; }
 
-            /* येथे आहे मोबाईलवरील टेबल्सचे कॉम्पॅक्ट लूक */
-            table { min-width: 100%; font-size: 14px; }
-            th, td { padding: 8px 6px; white-space: normal; word-wrap: break-word; }
-            .table-container { padding: 10px; overflow-x: auto;}
-            #summary-table th, #summary-table td, #details-container table th, #details-container table td { padding: 6px 4px; }
+            /* येथे आहे मोबाईलवरील टेबल्सचे परफेक्ट कॉम्पॅक्ट लूक */
+            table { min-width: 550px; font-size: 13px; } /* रुंदी सेट केली जेणेकरून टेबल दबणार नाही, आडवे स्क्रोल होईल */
+            th { padding: 8px 6px; white-space: nowrap; } /* हेडर एकाच ओळीत राहील, 'संपर्क' तुटणार नाही */
+            td { padding: 8px 6px; line-height: 1.4; }
+            .table-container { padding: 10px; overflow-x: auto; }
             
             /* अनावश्यक कॉलम्स लपवून जागा वाचवणे (Compact Look) */
             #details-container.taluka-selected table td:nth-child(3), #details-container.taluka-selected table th:nth-child(3) { display: none; }
@@ -375,7 +375,7 @@
             
             document.getElementById('details-container').classList.remove('taluka-selected', 'product-selected');
             document.body.classList.remove('tables-visible');
-            document.querySelectorAll('.loading').forEach(el => el.textContent = 'कृपया "शोधा" बटण दाबा');
+            document.querySelectorAll('.loading').forEach(el => el.textContent = 'कृपया "शोधा" বাটण दाबा');
             document.getElementById('details-container').innerHTML = '<div class="loading">कृपया "शोधा" बटण दाबा</div>';
             
             updateDateDisplay(allData);

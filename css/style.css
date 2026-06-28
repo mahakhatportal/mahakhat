@@ -55,11 +55,17 @@ header h1 {
 /* ४. कंटेनर्स आणि कार्ड्स (Cards) */
 .container, .form-container, .table-container, .filter-section {
     background-color: var(--white);
-    padding: 30px;
+    padding: 25px;
     border-radius: var(--border-radius);
     box-shadow: var(--card-shadow);
     margin-bottom: 30px;
     border: 1px solid var(--border-color);
+}
+
+/* टेबल्स कार्ड स्वरूपात आडवे स्क्रोल होण्यासाठी (अत्यंत महत्त्वाचे) */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ५. बटन्स (Buttons) */
@@ -93,7 +99,7 @@ button:disabled {
 /* ६. फॉर्म्स आणि इनपुट्स (Forms) */
 input, select {
     width: 100%;
-    padding: 12px;
+    padding: 10px 12px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 15px;
@@ -115,11 +121,13 @@ label {
     color: var(--text-main);
 }
 
-/* ७. टेबल्स (Tables) */
+/* ७. टेबल्स (Tables) - कॉम्पॅक्ट आणि सुटसुटीत डिझाईन */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 15px;
+    margin-top: 10px;
+    font-size: 14.5px; /* आधीपेक्षा थोडा कॉम्पॅक्ट फॉन्ट */
+    min-width: 700px; /* मोबाईलवर कॉलम्स घुसणार नाहीत, कार्डसारखे स्क्रोल होईल */
 }
 
 th {
@@ -127,13 +135,15 @@ th {
     color: var(--primary-color);
     font-weight: 700;
     text-align: left;
-    padding: 15px;
+    padding: 12px 10px;
     border-bottom: 2px solid var(--border-color);
+    white-space: nowrap; /* हेडरची नावे एकाच ओळीत राहण्यासाठी */
 }
 
 td {
-    padding: 12px 15px;
+    padding: 10px 10px;
     border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
 }
 
 tr:nth-child(even) {
@@ -144,11 +154,16 @@ tr:hover {
     background-color: #f0fdf4; /* हलका हिरवा होव्हर इफेक्ट */
 }
 
+/* 'एकूण साठा' ची ओळ ठळक करण्यासाठी */
+.total-row {
+    font-weight: bold;
+    background-color: #e2e8f0 !important;
+}
+
 /* ८. मेसेज आणि अलर्ट्स (Alerts) */
 .message { margin-top: 15px; text-align: center; font-size: 15px; font-weight: 500; padding: 10px; border-radius: 6px; }
 .success-msg { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 .error-msg { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-
 
 /* ==============================================================
    ९. बॅजेस आणि छोटे ॲक्शन बटन्स (Badges & Action Buttons)
@@ -176,14 +191,19 @@ tr:hover {
 .call-btn { background-color: #0284c7; } .sms-btn { background-color: #8b5cf6; } .wa-btn { background-color: #16a34a; } .email-btn { background-color: #ea4335; }
 
 /* ==============================================================
-   ११. मोबाईल रिस्पॉन्सिव्ह (Table to Cards) 
+   ११. मोबाईल रिस्पॉन्सिव्ह (Mobile Adjustments) 
 ============================================================== */
 @media screen and (max-width: 768px) {
     /* हेडर आणि बटन्स ॲडजस्टमेंट */
     header, .page-header { flex-direction: column; text-align: center; gap: 15px; padding: 15px;}
     .table-toolbar { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
     
-    /* Table to Card Logic - फक्त usersTable साठी */
+    /* पब्लिक पोर्टलवरील (index.html) टेबल्सचे पॅडिंग कॉम्पॅक्ट करणे */
+    .table-container { padding: 15px; }
+    table { font-size: 13.5px; } /* मोबाईलवर अधिक माहिती बसावी म्हणून थोडा छोटा फॉन्ट */
+    th, td { padding: 8px; }
+    
+    /* Table to Card Logic - फक्त usersTable (Admin) साठी */
     #usersTable, #usersTable thead, #usersTable tbody, #usersTable th, #usersTable td, #usersTable tr { display: block; width: 100%; }
     #usersTable thead tr { position: absolute; top: -9999px; left: -9999px; } /* हेडर लपवा */
     
@@ -191,7 +211,7 @@ tr:hover {
     #usersTable td { border: none; border-bottom: 1px solid var(--bg-light); position: relative; padding: 10px 10px 10px 45%; text-align: right; min-height: 40px;}
     #usersTable td:last-child { border-bottom: none; display: flex; flex-direction: row; justify-content: space-between; gap: 8px; padding: 15px 10px 5px 10px; }
     
-    /* मोबाईलवरील लेबल्स */
+    /* मोबाईलवरील लेबल्स (Admin Table) */
     #usersTable td::before { position: absolute; top: 12px; left: 10px; width: 40%; padding-right: 10px; white-space: nowrap; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 13px; }
     
     #usersTable td:nth-of-type(1)::before { content: "युझर आयडी:"; }
